@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ service_name }}</title>
+<!--    enables access to using jQuery-->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+     <link rel="stylesheet" type="text/css" href="/static/styles/menu.css">
+</head>
+<body class="menu-page-body">
+
+<div class="menu-page-header">
+    <h1><img src="static/images/flavour-fusion-icon.png" alt="category image" id="flavour-fusion-icon">{{ service_name }}</h1>
+    <div class="header-inner-group">
+       <form method="POST">
+            <div class="search-form-group">
+                <input type="text" name="search-input" id="search-parameter" placeholder="Search by Restaurant/zipcode" required>
+                <input class="search-button" type="submit" formaction="/get-restaurants" value="Search">
+            </div>
+        </form>
+
+        {% if first_name %}
+                <div class="welcome-user">Hi, {{ first_name }}!</div>
+                <div class="dropdown">
+                    <img src="static/images/show-more.png" class="show-more-icon" id="dropdown-icon">
+                    <div class="dropdown-content" id="dropdown-content">
+
+                        <div class="dropdown-element"><a href="view-my-orders">My Orders</a></div>
+                        <form class="dropdown-element" id="dropdown-element" action="/logout" method="post">
+                            <input type="submit" value="Logout" class="dropdown-element-logout">
+                        </form>
+                    </div>
+                </div>
+            {% endif %}
+
+    </div>
+</div>
+
+<div class="menu-page-split">
+    <div class="menu-items">
+    <form id="menu-form" method="POST" action="/add-to-cart">
+    {% for category_data in menu_category %}
+    <!--   display category name -->
+            <h2>{{ category_data['_id'] }}</h2>
+            <div class="grid-container">
+                {% for item in category_data['items'] %}
+                    <div class="card-grid-item">
+                            <div class="card-left">
+                                <h3>{{ item.name }}</h3>
+                                <p id="description">{{ item.description }}</p>
+                                <div class="price">{{ item.price }}
+                                  <button class="add-to-cart-button" type="button" onclick="addToCart('{{ item.name }}', '{{ item.price }}')">
+                                    Add
+                                </button></div>
+
+                            </div>
+                            <div class="card-right">
+
+                                {% if 'sandwich' in category_data['_id']|lower %}<img src="static/images/category-sandwich.jpg" alt="category image">
+
+                                {% elif 'breakfast' in category_data['_id']|lower %}<img src="static/images/category-breakfast.jpg" alt="category image">
+                                {% elif 'fish' in category_data['_id']|lower or 'seafood' in category_data['_id']|lower %}<img src="static/images/category-fish-seafood.jpg" alt="category image">
+
+                                {% elif 'sub' in category_data['_id']|lower or 'deli' in category_data['_id']|lower
+                                or 'wrap' in category_data['_id']|lower or 'burger' in category_data['_id']|lower%}<img src="static/images/category-sub-deli-wrap.jpg" alt="category image">
+
+                                {% elif 'drink' in category_data['_id']|lower or 'beverage' in category_data['_id']|lower %}
+                                    <img src="static/images/category-drinks.jpg" alt="category image">
+
+                                {% elif 'bakery' in category_data['_id']|lower or 'dessert' in category_data['_id']|lower
+                                or 'snack' in category_data['_id']|lower or 'sweet' in category_data['_id']|lower %} <img src="static/images/category-bakery.jpg" alt="category image">
+                                {% elif 'side' in category_data['_id']|lower or 'salad' in category_data['_id']|lower %} <img src="static/images/category-sides.jpg" alt="category image">
+                                {% elif 'condiment' in category_data['_id']|lower  %} <img src="static/images/category-condiments.jpg" alt="category image">
+                                {% elif 'chicken' in category_data['_id']|lower  %} <img src="static/images/category-chicken.jpg" alt="category image">
+                                {% elif 'coffee' in category_data['_id']|lower or 'tea' in category_data['_id']|lower %} <img src="static/images/category-coffee.jpg" alt="category image">
+
+                                {% else %}
+                                    <img src="static/images/category-food-generic.jpg" alt="category image">
+                                {% endif %}
+                            </div>
+                    </div>
+                {% endfor %}
+            </div>
+    {% endfor %}
+        <input type="hidden" class="restaurant_name" name="restaurant_name" id="restaurant_name" value="{{ restaurant_name }}">
+        <input type="hidden" class="restaurant_id" name="restaurant_id" id="restaurant_id" value="{{ restaurant_id }}">
+        <input type="hidden" class="restaurant_object_id" name="restaurant_object_id" id="restaurant_object_id" value="{{ restaurant_object_id }}">
+        <input type="hidden" class="item-name" name="item-name" id="item-name" >
+        <input type="hidden" class="item-price" name="item-price" id="item-price" >
+    </form>
+    </div>
+
+
+    <div class="show-cart-items" >
+        <form method="POST" action="/order-checkout" id="food-cart-summary">
+            <input type="hidden" class="restaurant_name" name="restaurant_name" value="{{ restaurant_name }}">
+            <input type="hidden" class="restaurant_id" name="restaurant_id" value="{{ restaurant_id }}">
+            <p class="your-cart-from-label">Your cart from </p>
+            <p class="restaurant-name">{{ restaurant_name }}</p>
+            <div class="show-checkout-amount"></div>
+            <input class="checkout-button" type="submit" formaction="/order-checkout" value="Checkout">
+
+            <div class="show-cart-item-details"></div>
+        </form>
+    </div>
+
+</div>
+
+
+</body>
+</html>
+
+
+<script>
+
+function displayCartItems(restaurant_id) {
+    var dataToSend = new FormData();
+    dataToSend.append('restaurant_id', restaurant_id);
+    $.ajax({
+        type: "POST",
+        url: "/get-cart-items",
+        data: dataToSend,
+        processData: false,
+        contentType: false,
+        success: function(response) {
+            var itemsHtml = "";
+            response.forEach(function(item) {
+                // Generate HTML for each item card
+                var itemCard = `
+                    <div class="cart-item-card">
+                        <div class="cart-item-name">${item.item_name}</div>
+                        <div class="cart-item-details">
+                        <form class="delete-from-cart-form" id="delete-from-cart-form" method="POST" action="/delete-from-cart">
+                            <div class="price">
+                                <b>${item.item_price}</b>
+                                <span class="edit-quantity">
+                                    <button type="button" class="edit-cart" onclick="decreaseItemQuantityInCart('${item._id}')">
+                                        <img src="static/images/minus.png" id="edit-cart-img">
+                                    </button>
+                                    &nbsp;<span class="quantity">${item.quantity}</span>
+                                    <button type="button" class="edit-cart" onclick="increaseItemQuantityInCart('${item._id}')">
+                                        <img src="static/images/plus.jpg" id="edit-cart-img">
+                                    </button>
+                                </span>
+                                <button type="button" class="delete-cart-item" onclick="deleteItemFromCart('${item._id}')">
+                                    <img src="static/images/delete.png" id="delete-cart-item-img">
+                                </button>
+                            </div>
+                            <input type="hidden" name="item-id" value='{item._id} USD'>
+                        </form>
+                        </div>
+                    </div>
+                `;
+                itemsHtml += itemCard;
+            });
+            // Insert the generated HTML into the container
+            $('.show-cart-item-details').html(itemsHtml);
+        },
+        error: function(error) {
+            console.log(error);
+        }
+    });
+}
+
+
+
+
+
+
+function deleteItemFromCart(itemid){
+    var dataToSend = new FormData();
+    dataToSend.append('item_id', itemid);
+
+    var formData = $('#menu-form').serialize();
+    var params = new URLSearchParams(formData);
+    var restaurant_id = params.get('restaurant_id');
+
+    $.ajax({
+        type: "POST",
+        url: "/delete-from-cart",
+        data: dataToSend,
+        processData: false,
+        contentType: false,
+        success: function(response){
+            console.log("delete-form:", response);
+            displayCartItems(restaurant_id);
+            isCartEmpty();
+        },
+        error: function(error) {
+            console.log("Error:", error);
+        }
+    });
+}
+
+
+function decreaseItemQuantityInCart(itemid){
+    var dataToSend = new FormData();
+    dataToSend.append('item_id', itemid);
+
+    var formData = $('#menu-form').serialize();
+    var params = new URLSearchParams(formData);
+    var restaurant_id = params.get('restaurant_id');
+
+    $.ajax({
+        type: "POST",
+        url: "/decrease-item-quantity-cart",
+        data: dataToSend,
+        processData: false,
+        contentType: false,
+        success: function(response){
+            console.log("reduce-form:", response);
+            displayCartItems(restaurant_id);
+            isCartEmpty();
+        },
+        error: function(error) {
+            console.log("Error:", error);
+        }
+    });
+}
+
+function increaseItemQuantityInCart(itemid){
+    var dataToSend = new FormData();
+    dataToSend.append('item_id', itemid);
+
+    var formData = $('#menu-form').serialize();
+    var params = new URLSearchParams(formData);
+    var restaurant_id = params.get('restaurant_id');
+
+    $.ajax({
+        type: "POST",
+        url: "/increase-item-quantity-cart",
+        data: dataToSend,
+        processData: false,
+        contentType: false,
+        success: function(response){
+            console.log("reduce-form:", response);
+            displayCartItems(restaurant_id);
+            isCartEmpty();
+        },
+        error: function(error) {
+            console.log("Error:", error);
+        }
+    });
+}
+
+
+// Function to add an item to shopping cart
+function addToCart(name, price) {
+    document.getElementById('item-name').value = name;
+    document.getElementById('item-price').value = price;
+
+    var formData = $('#menu-form').serialize();
+    var params = new URLSearchParams(formData);
+    var restaurant_id = params.get('restaurant_id');
+    console.log("Restaurant ID:", restaurant_id);
+    console.log("name: ", name);
+    $.ajax({
+        type: "POST",
+        url: "/add-to-cart",
+        data: formData,
+        success: function(response) {
+            console.log("Success:", response);
+            displayCartItems(restaurant_id);
+            isCartEmpty();
+        },
+        error: function(error) {
+            console.log("Error:", error);
+        }
+    });
+}
+
+
+function calculateCheckoutAmount(restaurant_id){
+    $.ajax({
+        type: "POST",
+        url: "/calculate-checkout-amount",
+        data: restaurant_id,
+        processData: false,
+        contentType: false,
+        success: function(response) {
+            var itemsHtml = "Total amount: " + response + " USD";
+            $('.show-checkout-amount').html(itemsHtml);
+        },
+        error: function(error) {
+                console.log(error);
+        }
+    });
+}
+
+
+    function isCartEmpty() {
+        var formData = $('#menu-form').serialize();
+        var params = new URLSearchParams(formData);
+        var restaurant_id = params.get('restaurant_id');
+        var dataToSend = new FormData();
+        dataToSend.append('restaurant_id', restaurant_id);
+
+        $.ajax({
+            type: "POST",
+            url: "/get-cart-items",
+            data: dataToSend,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                console.log("response: ", response);
+                if (response.length > 0) {
+                    $('.show-cart-items').show();
+                    displayCartItems(restaurant_id);
+                    calculateCheckoutAmount(dataToSend);
+                } else {
+                    $('.show-cart-items').hide();
+                }
+            },
+            error: function(error) {
+                console.log(error);
+            }
+        });
+    }
+
+    // Call the function on page load
+     isCartEmpty();
+
+
+
+
+        // JavaScript to toggle the visibility of the dropdown content
+document.addEventListener("DOMContentLoaded", function() {
+    var icon = document.getElementById("dropdown-icon");
+    var dropdownContent = document.getElementById("dropdown-content");
+
+    icon.addEventListener("click", function() {
+        dropdownContent.style.display = (dropdownContent.style.display === "block") ? "none" : "block";
+    });
+
+    // Close the dropdown if the user clicks outside of it
+    window.addEventListener("click", function(event) {
+        if (!event.target.matches("#dropdown-icon")) {
+            dropdownContent.style.display = "none";
+        }
+    });
+});
+
+
+
+
+</script>

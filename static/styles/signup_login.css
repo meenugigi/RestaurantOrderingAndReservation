@@ -1,0 +1,54 @@
+@import url("parent.css");
+
+
+.signup-page-body{
+    background-image: url('../images/restaurants-page-wallpaper.jpg');
+}
+
+.signup-page-header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.form-format{
+    display: flex;
+    gap: 60px;
+    padding: 0 14%;
+}
+
+.signup-page-container {
+    width: 50%;
+    margin: 50px auto;
+    padding: 2%;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+input[type="text"], input[type="email"], input[type="tel"], input[type="password"], select {
+    width: 100%;
+    padding: 6%;
+    font-size: 14px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+}
+
+.signup-button-container{
+    margin-left: 45%;
+}
+
+.signup-button{
+    font-size: 16px;
+}

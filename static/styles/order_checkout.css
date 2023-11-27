@@ -1,0 +1,127 @@
+@import url("parent.css");
+
+/* html page body*/
+.order-checkout-page-body{
+    background-image: url('../images/menu-page-wallpaper.jpg');
+    color: white;
+}
+
+/* div storing entire page content */
+.checkout-page-container{
+    display: flex;
+}
+
+/* form details required to place order - left side page section */
+.form-checkout-details{
+    width: 70%;
+    padding: 1%;
+}
+
+/* checkout item details -right side page section */
+.checkout-item-details{
+    flex: 1;
+    width: 30%;
+}
+
+/* form taking all details */
+form{
+    display: flex;
+}
+
+/* taking input details required for checkout */
+.form-checkout-details {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+/* section of form taking personal, address and payment details */
+.form-personal-details, .form-address-details, .form-payment-details {
+    padding: 20px;
+    border-radius: 8px;
+    flex-grow: 1;
+    border: 1px
+}
+
+
+
+/* form inputs */
+.input-group {
+    margin-bottom: 15px;
+}
+
+.input-group > input[type="text"],
+.input-group > input[type="number"] {
+    width: 100%;
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+    margin-top: 5px;
+}
+
+/* inputs for card expiration month, year and cvc drop down */
+.payment-exp-cvc-dropdown{
+    display: flex;
+    gap: 20px;
+}
+
+/* error for invalid inputs */
+input[type="text"]:invalid, input[type="number"]:invalid {
+    border: 1px solid red; /* Style for invalid inputs */
+}
+
+
+/* right most section storing order summary for checkout */
+.order-summary {
+    border: 1px solid #ccc;
+    padding: 20px;
+    border-radius: 5px;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+/* order summary label header */
+.order-summary h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* each order item container */
+.order-item {
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+}
+
+/* order item details */
+.order-item p {
+    margin: 5px 0;
+}
+
+/* order item details */
+.price {
+    font-weight: bold;
+    margin-right: 20px;
+}
+
+/* order item details */
+.total-amount p {
+    font-weight: bold;
+    text-align: right;
+    margin-top: 20px;
+}
+
+
+.place-order-button {
+    padding: 10px 20px;
+    font-size: 16px;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+

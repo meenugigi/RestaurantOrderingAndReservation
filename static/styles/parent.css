@@ -1,0 +1,188 @@
+/* application body on all pages */
+body {
+    padding: 0 2%;
+    height: 100%;
+    margin: 0;
+    display: block;
+    font-family: Arial, Helvetica, sans-serif;
+    justify-content: center;
+    font-family: 'Lucida Handwriting', cursive, sans-serif;
+}
+#flavour-fusion-icon{
+    width: 35px;
+    height: 35px;
+}
+
+/* page header and input form */
+h1{
+    color: white;
+    font-family: 'Lucida Handwriting', cursive, sans-serif;
+}
+
+
+.index-page-body, .restaurants-page-body, .menu-page-body, .order-checkout-page-body, .my-orders-page-body,
+.signup-page-body{
+    background-size: 100% auto;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    font-family: Arial, sans-serif;
+    color: white;
+}
+
+
+
+
+
+
+
+
+.search-form-group{
+    display: flex;
+    align-items: center;
+}
+
+.search-form-group input {
+    margin-right: 10px; /* Add spacing between input and button */
+}
+
+
+/*common attributes for the search input field and search button on restaurant, menu and checkout page. */
+#search-parameter, .search-button, .signup-button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+#search-parameter{
+    height: 20px;
+    width: 220px;
+}
+
+/* search button on restaurant, menu and checkout page. */
+.search-button {
+    cursor: pointer;
+    height: 42px;
+    color: white;
+}
+
+/* search button on restaurant, menu and checkout page - hover effect */
+.search-button:hover {
+    background-color: #0056b3;
+}
+
+
+
+
+
+
+
+/* common attributes for background color for individual menu card item on menu page and
+all form sections and order summary section on order checkout page */
+.card-grid-item, .form-personal-details, .form-address-details, .form-payment-details, .order-summary,
+.order-items-inner-container, .signup-page-container{
+    background-color: #130d06;
+    opacity: 0.8;
+}
+
+/* common attributes for search button on restaurant/menu page, add to cart button, checkout button on menu page
+and place order button on the order checkout page */
+.search-button, .place-order-button, .price > .add-to-cart-button, .checkout-button, .button, .login-button, .signup-button{
+    background-color: #4d6600;
+    font-size: 16px;
+}
+
+/* common attributes for  search button on restaurant/menu page add to cart button, checkout button on menu page
+and place order button on the order checkout page */
+.search-button:hover, .place-order-button:hover, .price > .add-to-cart-button:hover, .checkout-button:hover,
+.button:hover, .login-button:hover, .signup-button:hover{
+    background-color: #86b300;
+}
+
+
+.logout-button{
+    background-color: #4d6600;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 5px;
+    font-size: 12px;
+}
+
+.welcome-user{
+    font-size: 13px;
+}
+
+
+.restaurant-page-header, .menu-page-header, .order-checkout-page-header,
+.my-orders-page-header, .header-inner-group {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* error message for payment failure */
+#error{
+    color: red;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+
+.show-more-icon{
+    width: 25px;
+    height: 15px;
+}
+
+
+
+
+
+/*dropdown */
+
+#dropdown-icon{
+    cursor: pointer;
+}
+
+
+/* Hide the dropdown content by default */
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: black;
+    border: 1px solid gray;
+    width: 120px;
+    font-size: 13px;
+    text-align: center;
+    z-index: 1;
+    right: 0; /* Change right positioning */
+}
+
+.dropdown-element:hover {
+    background-color: gray;
+}
+
+
+
+.dropdown-content a{
+    text-decoration: none;
+    color: white;
+}
+
+.dropdown-element{
+    padding: 8%;
+}
+
+.dropdown-element-logout {
+    background-color: transparent;
+    color: white;
+    border: none;
+    font-size: 13px;
+    width: 100%;
+    height: 100%;
+    padding:0;
+}
+
+.dropdown-element-logout:hover{
+    background-color: gray;
+}

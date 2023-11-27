@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ service_name }}</title>
+     <link rel="stylesheet" type="text/css" href="/static/styles/my_orders.css">
+</head>
+<body class="my-orders-page-body">
+
+   <div class="my-orders-page-header">
+        <h1><img src="static/images/flavour-fusion-icon.png" alt="category image" id="flavour-fusion-icon">{{ service_name }}</h1>
+        <div class="header-inner-group">
+           <form method="POST">
+                <div class="search-form-group">
+                    <input type="text" name="search-input" id="search-parameter" placeholder="Search by Restaurant/zipcode" required>
+                    <input class="search-button" type="submit" formaction="/get-restaurants" value="Search">
+                </div>
+            </form>
+            {% if first_name %}
+                <div class="welcome-user">Hi, {{ first_name }}!</div>
+                <div class="dropdown">
+                    <img src="static/images/show-more.png" class="show-more-icon" id="dropdown-icon">
+                    <div class="dropdown-content" id="dropdown-content">
+
+                        <div class="dropdown-element"><a href="view-my-orders">My Orders</a></div>
+                        <form class="dropdown-element" id="dropdown-element" action="/logout" method="post">
+                            <input type="submit" value="Logout" class="dropdown-element-logout">
+                        </form>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+   </div>
+
+   <div class="order-items-container">
+    {% for order in current_account_placed_orders | sort(attribute='timestamp', reverse=true) %}
+    <div class="order-items-inner-container">
+        <div class="order-header">
+            <h3>{{ order.restaurant_name }}</h3>
+            <input type="hidden" class="order-status" name="order-status" id="order-status" value="{{ order.status }}">
+
+
+             <div class="status-display" id="status-display-{{ loop.index }}">
+                  <div class="status-point order-placed">
+                    <span class="status-text">Order Placed</span>
+                  </div>
+                  <div class="status-line order-accepted"></div>
+                  <div class="status-point order-accepted">
+                    <span class="status-text">Order Accepted</span>
+                  </div>
+                  <div class="status-line order-processing"></div>
+                  <div class="status-point order-processing">
+                    <span class="status-text">Order Processing</span>
+                  </div>
+                 <div class="status-line on-the-way"></div>
+                  <div class="status-point on-the-way">
+                    <span class="status-text">On the way</span>
+                  </div>
+                  <div class="status-line order-delivered"></div>
+                  <div class="status-point order-delivered">
+                    <span class="status-text">Order Delivered</span>
+                  </div>
+            </div>
+
+
+
+
+            <div class="show-date-total-amount">
+                <p>{{ order.formatted_timestamp }}</p>
+                <b><p>Total: ${{ order.total_amount }}</p></b>
+
+            </div>
+        </div>
+        <div class="order-items">
+            {% for item in order['items'] %}
+            <div class="order-item">
+                <p>{{ item.item_name }}</p>
+                <p>{{ item.item_price }}</p>
+                <p>Quantity: {{ item.quantity }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    {% endfor %}
+</div>
+
+
+
+
+
+
+</body>
+</html>
+
+
+<script>
+
+        const orderStatusInputs = document.querySelectorAll('.order-status');
+
+        orderStatusInputs.forEach((input, index) => {
+            const orderStatus = input.value.trim();
+            const statusDisplay = document.getElementById(`status-display-${index + 1}`);
+            getStatus(orderStatus, statusDisplay);
+        });
+
+
+
+
+        function getStatus(orderStatus, statusDisplay){
+
+            console.log("order", orderStatus, "display", statusDisplay);
+
+            const statusPoints = statusDisplay.querySelectorAll('.status-point');
+            const statusLines = statusDisplay.querySelectorAll('.status-line');
+
+            const statusClasses = getStatusClasses(orderStatus);
+            console.log("classstas ", statusClasses);
+
+            statusPoints.forEach(point => {
+                const pointClass = point.classList[1];
+<!--                console.log("pointclass: ", pointClass);-->
+<!--                console.log("pointclass check: ", statusClasses.includes(pointClass));-->
+                if (statusClasses.includes(pointClass)) {
+                    point.style.backgroundColor = 'green'; // Apply green color for matched status points
+                } else {
+                    point.style.backgroundColor = '#ccc'; // Reset color for unmatched points
+                }
+
+
+            });
+
+            statusLines.forEach(point => {
+                const pointClass = point.classList[1];
+                console.log("pointclass: ", pointClass);
+                console.log("pointclass check: ", statusClasses.includes(pointClass));
+                if (statusClasses.includes(pointClass)) {
+                    point.style.borderTop = '3px solid green'; // Apply green color for matched status points
+                } else {
+                    point.style.backgroundColor = '#ccc'; // Reset color for unmatched points
+                }
+
+
+            });
+        }
+
+        function getStatusClasses(orderStatus) {
+            const statusClasses = {
+                'order placed': ['order-placed'],
+                'order accepted': ['order-placed', 'order-accepted'],
+                'processing order': ['order-placed', 'order-accepted', 'order-processing'],
+                'on the way': ['order-placed', 'order-accepted', 'order-processing', 'on-the-way'],
+                'delivered': ['order-placed', 'order-accepted', 'order-processing','on-the-way', 'order-delivered']
+                // Add more status mappings as needed
+            };
+            return statusClasses[orderStatus.toLowerCase()] || [];
+        }
+
+
+
+
+<!--// Remove existing status classes and apply the class for the current status-->
+<!--document.querySelectorAll('.status-point').forEach(point => {-->
+<!--  point.classList.remove('order-placed', 'order-accepted', 'order-processing', 'order-delivered');-->
+
+<!--  if (point.classList.contains(orderStatus.replace(' ', '-'))) {-->
+<!--    point.classList.add(orderStatus.replace(' ', '-'));-->
+<!--  }-->
+<!--});-->
+
+<!--// Mapping colors based on status-->
+<!--const statusColors = {-->
+<!--  'order placed': 'green',-->
+<!--  'order accepted': 'yellow',-->
+<!--  'order processing': 'orange',-->
+<!--  'order delivered': 'red'-->
+<!--};-->
+
+// Update colors based on the fetched status
+<!--document.querySelectorAll('.status-point').forEach(point => {-->
+<!--  point.style.backgroundColor = statusColors[orderStatus.toLowerCase().trim()] || '#ccc';-->
+<!--});-->
+
+<!--document.querySelectorAll('.status-line').forEach((line, index) => {-->
+<!--  line.style.borderTopColor = statusColors[orderStatus.toLowerCase().trim()] || '#ccc';-->
+<!--});-->
+
+
+
+
+
+
+    // JavaScript to toggle the visibility of the dropdown content
+document.addEventListener("DOMContentLoaded", function() {
+    var icon = document.getElementById("dropdown-icon");
+    var dropdownContent = document.getElementById("dropdown-content");
+
+    icon.addEventListener("click", function() {
+        dropdownContent.style.display = (dropdownContent.style.display === "block") ? "none" : "block";
+    });
+
+    // Close the dropdown if the user clicks outside of it
+    window.addEventListener("click", function(event) {
+        if (!event.target.matches("#dropdown-icon")) {
+            dropdownContent.style.display = "none";
+        }
+    });
+});
+
+
+</script>

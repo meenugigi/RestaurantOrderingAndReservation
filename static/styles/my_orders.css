@@ -1,0 +1,125 @@
+@import url("parent.css");
+
+
+.my-orders-page-body{
+    background-image: url('../images/menu-page-wallpaper.jpg');
+    color: white;
+}
+
+
+
+/* page header */
+.my-orders-page-header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    /*position: fixed;
+     width: 100%;
+     left: 0;
+    top: 0;
+    padding: 0 2%;*/
+    z-index: 1000;
+
+}
+
+
+
+/* Style the container for all orders */
+.order-items-container {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+}
+
+/* Style each individual order */
+.order-items-inner-container {
+    border: 1px solid gray;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 20px;
+    color: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Style the header of each order */
+.order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.order-header h3 {
+    margin: 0;
+    font-size: 18px;
+}
+
+.order-header p {
+    margin: 0;
+}
+
+/* Style the order items section */
+.order-items {
+    border-top: 1px solid gray;
+    padding-top: 10px;
+}
+
+/* Style each item in the order */
+.order-item {
+    padding: 0.2% 0;
+    display: flex;
+    gap: 40px;
+}
+
+.order-item p {
+    margin: 5px 0;
+    font-size: 14px;
+}
+
+.show-date-total-amount{
+    font-size: 14px;
+    text-align: right;
+}
+
+
+
+
+
+
+
+
+
+/* Styles for status display */
+.status-display {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 40%;
+  margin: 20px auto;
+}
+
+/* Status point styles */
+.status-point {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #ccc; /* Default color for points */
+  position: relative;
+}
+
+/* Lines between status points */
+.status-line {
+  flex: 1;
+  border-top: 1px solid #ccc; /* Default color for lines */
+}
+
+/* Status text styles */
+.status-text {
+  position: absolute;
+  bottom: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 12px;
+  white-space: nowrap;
+  color: gray;
+}

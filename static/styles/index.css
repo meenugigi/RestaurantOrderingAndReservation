@@ -1,0 +1,62 @@
+@import url("parent.css");
+
+/* -----------------------------------------DEFAULT PAGE -----------------------------*/
+/* body for default page */
+.index-page-body{
+    background-image: url('../images/default.jpg');
+}
+
+.index-page-body::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.3); /* Adjust the alpha value (0.5) for opacity */
+    z-index: -1;
+}
+
+.index-page-header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
+
+
+.form-group{
+    font-size: 25px;
+    text-align: center;
+    justify-content: center;
+    margin-top: 10%;
+}
+
+label{
+    font-size: 30px;
+}
+
+#order_near_you_input, input[type="submit"] {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    color: white;
+}
+
+#order_near_you_input{
+    height: 25px;
+    width: 35%;
+}
+
+/* submit button */
+.button {
+    height: 48px;
+}
+
+
+
+
+
+/*------------------------- END OF DEFAULT PAGE --------------------------------------*/
+
