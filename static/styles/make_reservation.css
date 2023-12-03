@@ -1,0 +1,46 @@
+@import url("parent.css");
+
+
+.make-reservation-page-body{
+    background-image: url('../images/menu-page-wallpaper.jpg');
+    color: white;
+}
+
+.inner-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.1);
+}
+label {
+    display: block;
+    margin-bottom: 8px;
+}
+select {
+    width: calc(100% - 18px);
+    padding: 8px;
+    margin-bottom: 20px;
+}
+.form-group > input[type="text"],
+.form-group > input[type="tel"], .form-group > input[type="date"] {
+    width: calc(100% - 18px);
+    padding: 8px;
+    margin-bottom: 20px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.button {
+    grid-column: span 2;
+}
+
+#error{
+    text-align: center;
+}
+

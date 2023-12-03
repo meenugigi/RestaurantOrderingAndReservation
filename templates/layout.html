@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ service_name }}</title>
+     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+     <link rel="stylesheet" type="text/css" href="/static/styles/parent.css">
+</head>
+<body class="layout-page-body">
+
+   <div class="page-header">
+        <h1><a href="/"><img src="static/images/flavour-fusion-icon.png" alt="category image" id="flavour-fusion-icon">
+            {{ service_name }}</a></h1>
+
+       <div class="header-inner-group">
+           <form method="POST">
+                <div class="search-form-group">
+                    <input type="text" name="search-input" id="search-parameter" placeholder="Search by Restaurant/zipcode" required>
+                    <input class="button" type="submit" formaction="/get-restaurants" value="Search">
+                </div>
+            </form>
+                {% if first_name %}
+                    <div class="welcome-user">Hi, {{ first_name }}!</div>
+                    <div class="dropdown">
+                        <img src="static/images/show-more.png" class="show-more-icon" id="dropdown-icon">
+                        <div class="dropdown-content" id="dropdown-content">
+
+                            <div class="dropdown-element"><a href="view-my-orders">My Orders</a></div>
+                            <div class="dropdown-element"><a href="show-reservations">My Reservations</a></div>
+                            <form class="dropdown-element" id="dropdown-element" action="/logout" method="post">
+                                <input type="submit" value="Logout" class="dropdown-element-logout">
+                            </form>
+                        </div>
+                    </div>
+                {% endif %}
+        </div>
+    </div>
+
+
+
+</body>
+{% block content %}
+{% endblock %}
+</html>
+
+
+<script>
+
+
+
+    // JavaScript to toggle the visibility of the dropdown content
+document.addEventListener("DOMContentLoaded", function() {
+    var icon = document.getElementById("dropdown-icon");
+    var dropdownContent = document.getElementById("dropdown-content");
+
+    icon.addEventListener("click", function() {
+        dropdownContent.style.display = (dropdownContent.style.display === "block") ? "none" : "block";
+    });
+
+    // Close the dropdown if the user clicks outside of it
+    window.addEventListener("click", function(event) {
+        if (!event.target.matches("#dropdown-icon")) {
+            dropdownContent.style.display = "none";
+        }
+    });
+});
+
+
+
+</script>
+
+
+

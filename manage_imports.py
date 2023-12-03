@@ -1,0 +1,43 @@
+from bson import ObjectId
+from fastapi import FastAPI, HTTPException
+from fastapi.security import APIKeyCookie
+from pydantic import BaseModel
+from pymongo import MongoClient
+from fastapi import Request
+from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
+import stripe
+from starlette.responses import RedirectResponse
+from starlette.middleware.sessions import SessionMiddleware
+from passlib.context import CryptContext
+from datetime import datetime, timedelta
+import asyncio
+
+from env import STRIPE_API_KEY, COOKIE_KEY, SESSION_SECRET_KEY
+
+# for payment using stripe api
+stripe.api_key = STRIPE_API_KEY
+# for storing session data for user login and logout
+cookie_key = COOKIE_KEY  # Replace with your secret key
+security = APIKeyCookie(name="session", auto_error=False)
+SECRET_KEY = SESSION_SECRET_KEY
+
+
+app = FastAPI()
+templates = Jinja2Templates(directory="templates")
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+# Password hashing helper using bcrypt
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+# MongoDB connection URL
+MONGODB_URL = "mongodb://localhost:27017/"
+client = MongoClient(MONGODB_URL)
+database = client['RestaurantOrderingAndReservation']
+collection_restaurant = database['Restaurant']
+collection_menu = database['Menu']
+collection_food_cart = database['Food-Cart']
+collection_orders = database['Orders']
+collection_account_info = database['Accounts']
+collection_reservations = database['Reservations']
+

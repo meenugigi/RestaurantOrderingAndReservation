@@ -1,0 +1,102 @@
+  {% extends "layout.html" %}
+
+  {% block content %}
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+     <link rel="stylesheet" type="text/css" href="/static/styles/make_reservation.css">
+
+<body class="make-reservation-page-body">
+
+    <div id="error"></div>
+    <form action="/save-reservation-data" method="post" class="inner-container" id="reservation-form">
+
+        <div>
+            <label for="slots">Choose a slot:</label>
+            <div class="form-group">
+                <label for="contact">Reserve for:</label>
+                <input type="date" id="date" name="date" min="{{ min_date }}" max="{{ max_date }}" required>
+            </div>
+
+            <label for="slots">Choose a slot:</label>
+            <select id="slots" name="slots" multiple>
+                {% for reservation in available_to_reserve_slot_list %}
+                <option value="{{ reservation.slots }}" data-id="{{ reservation._id }}" name="slot">{{ reservation.slots }}</option>
+                {% endfor %}
+            </select>
+
+
+        </div>
+
+        <div>
+            <div class="form-format">
+                <div class="form-group">
+                    <label for="first_name">First Name:</label>
+                    <input type="text" id="first_name" name="first_name" value="{{ first_name }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="last_name">Last Name:</label>
+                    <input type="text" id="last_name" name="last_name" value="{{ last_name }}" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="contact">Contact:</label>
+                <input type="tel" id="contact" name="contact" value="{{ contact }}" required>
+            </div>
+        </div>
+
+        <input type="submit" value="Book your slot" class="button">
+        <input type="hidden" class="restaurant_id" name="restaurant_id" value="{{ restaurant_id }}">
+    </form>
+
+</body>
+
+
+
+<script>
+
+    $('#reservation-form').submit(function(event) {
+    event.preventDefault();
+
+    const formData = $(this).serializeArray();
+    const selectedSlots = formData.filter(item => item.name === 'slots').map(item => item.value);
+    const selectedSlotIds = [];
+    selectedSlots.forEach(value => {const dataIdValue = $('#slots option[value="' + value + '"]').data('id');
+        if (dataIdValue) {
+            selectedSlotIds.push(dataIdValue);
+        }
+    });
+    console.log('Data ID Values for selected slots:', selectedSlotIds);
+    const date = formData.find(item => item.name === 'date').value;
+    const first_name = formData.find(item => item.name === 'first_name').value;
+    const last_name = formData.find(item => item.name === 'last_name').value;
+    const contact = formData.find(item => item.name === 'contact').value;
+    const restaurant_id = formData.find(item => item.name === 'restaurant_id').value;
+
+    console.log(selectedSlots, selectedSlotIds)
+<!--    console.log(igh);-->
+
+    // AJAX request using jQuery
+    $.ajax({
+        type: 'POST',
+        url: 'save-reservation-data',
+        contentType: 'application/json',
+        data: JSON.stringify({ slots: selectedSlots, slot_ids: selectedSlotIds, first_name: first_name, last_name: last_name, date: date,
+                                contact: contact, restaurant_id: restaurant_id }),
+        success: function(response) {
+            console.log('Data sent successfully');
+            var itemsHtml = "Reservation successful!";
+            $('#error').html(itemsHtml);
+            window.location.href = "/show-reservations";
+        },
+        error: function(xhr, status, error) {
+            console.error('Failed to send data:', error);
+            var itemsHtml = "Reservation failed! Please try again";
+            $('#error').html(itemsHtml);
+        }
+    });
+});
+
+
+</script>
+
+{% endblock %}

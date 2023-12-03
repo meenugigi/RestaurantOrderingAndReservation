@@ -1,0 +1,65 @@
+@import url("parent.css");
+
+
+.menu-page-body{
+    background-image: url('../images/menu-page-wallpaper.jpg');
+    color: white;
+}
+
+
+.reservations-container {
+    display: grid;
+    grid-gap: 30px;
+    padding: 2% 10%;
+}
+
+.reservation {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 1%;
+}
+
+.details {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2px 5%;
+}
+
+.restaurant-name {
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 8px;
+    font-size: large;
+}
+
+.slot-date-contact {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    color: #cccccc;
+    font-size: small;
+}
+
+.slot-date {
+    flex: 1;
+}
+
+.contact {
+    margin-left: auto;
+}
+
+.details > .button {
+    width: 100%;
+    background-color: #cc0000;
+}
+
+.details > .button:hover {
+    width: 100%;
+    background-color: #800000;
+}
+
+.upcoming-reservations-label{
+    font-size: 18px;
+    padding: 0 5%;
+}
