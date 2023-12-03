@@ -37,7 +37,7 @@ label{
     font-size: 30px;
 }
 
-#order_near_you_input, input[type="submit"] {
+#order_near_you_input{
     padding: 10px 20px;
     border: none;
     border-radius: 5px;

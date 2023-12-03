@@ -7,7 +7,7 @@
 <body class="index-page-body">
 
 
-        <div class="index-page-header">
+        <div class="page-header">
            <h1><img src="static/images/flavour-fusion-icon.png" alt="category image" id="flavour-fusion-icon">{{ service_name }}</h1>
             <div class="header-inner-group">
             {% if first_name %}
@@ -25,8 +25,8 @@
             {% else %}
                 <form method="POST">
                     <div class="login-signup-form-group">
-                        <input class="login-button" type="submit" formaction="/login" value="Log in">
-                        <input class="signup-button" type="submit" formaction="/sign-up" value="Sign up">
+                        <input class="button" type="submit" formaction="/login" value="Log in">
+                        <input class="button" type="submit" formaction="/sign-up" value="Sign up">
                     </div>
                 </form>
             {% endif %}

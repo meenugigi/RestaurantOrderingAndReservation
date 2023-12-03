@@ -92,18 +92,12 @@ img{
 }
 
 /* add to cart button on individual menu item card */
-.price > .add-to-cart-button {
+.price > .button {
     font-size: 15px;
-}
-
-/* common attributes for add to cart button and checkout button */
-.price > .add-to-cart-button, .checkout-button{
-    color: white;
-    cursor: pointer;
-    border-radius: 10px;
-    border: none;
     padding: 7px 10px;
 }
+
+
 
 /* -------------------------RIGHT SIDE SECTION - SHOPPING CART DETAILS ------------------- */
 
@@ -112,7 +106,7 @@ img{
 }
 
 /* common attributes to be bolded from the food-cart summary section on right */
-.show-checkout-amount, .restaurant-name, .checkout-button, .your-cart-from-label{
+.show-checkout-amount, .restaurant-name, #food-cart-summary > .button, .your-cart-from-label{
     font-weight: bold;
 }
 
@@ -122,7 +116,7 @@ img{
 }
 
 /* checkout button */
-.checkout-button{
+#food-cart-summary > .button{
     width: 100%;
 }
 

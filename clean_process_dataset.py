@@ -1,15 +1,9 @@
-from bson import ObjectId
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
+import random
+from datetime import datetime, timedelta
+
+import bson
 from pymongo import MongoClient
-from fastapi import Request
-from fastapi.responses import HTMLResponse
-from fastapi.templating import Jinja2Templates
-from fastapi import FastAPI
-from fastapi.staticfiles import StaticFiles
-import re
-import stripe
-import pymongo
+
 
 # MongoDB connection URL
 MONGODB_URL = "mongodb://localhost:27017/"
@@ -67,6 +61,61 @@ def clean_menu_collection():
     print("MENU COLLECTION CLEANED!")
 
 
+def update_restaurant_collection():
+    opening_times = ['9:00 AM', '9:30 AM', '10:00 AM', '10:30 AM', '11:00 AM', '11:30 AM']
+    closing_times = ['5:00 PM', '5:30 PM', '6:00 PM', '6:30 PM', '7:00 PM', '7:30 PM', '8:00 PM', '8:30 PM',
+                     '9:00 PM', '9:30 PM', '10:00 PM', '10:30 PM', '11:00 PM']
+    restaurant_list = list(collection_restaurant.find({}))
+
+
+    for restaurant in restaurant_list:
+        random_opening_time = random.choice(opening_times)
+        random_closing_time = random.choice(closing_times)
+        random_capacity = random.randint(40, 250)
+
+        start_time = datetime.strptime(random_opening_time, "%I:%M %p")
+        close_time = datetime.strptime(random_closing_time, "%I:%M %p")
+        # time_intervals = generate_time_intervals(start_time, close_time)
+        time_intervals = []
+        for i, interval in enumerate(generate_time_intervals(start_time, close_time)):
+            interval['_id'] = bson.ObjectId()  # Generate a unique ObjectId for each interval
+            time_intervals.append(interval)
+
+        collection_restaurant.update_one({
+            "_id": restaurant['_id']
+        },
+            {
+                "$set": {"opens_at": random_opening_time,
+                        "closes_at": random_closing_time,
+                         "max_capacity": random_capacity,
+                         "reservations": time_intervals}
+
+            })
+    print("UPDATE ON 'RESTAURANT' COLLECTION SUCCESSFUL!")
+
+
+
+
+def generate_time_intervals(start_time, end_time):
+    time_intervals = []
+    current_time = start_time
+
+    while current_time < end_time:
+        end_interval_time = current_time + timedelta(minutes=30)
+        if end_interval_time > end_time:
+            end_interval_time = end_time
+
+        interval_dict = {
+            f"{current_time.strftime('%I:%M %p')} - {end_interval_time.strftime('%I:%M %p')}": 0
+        }
+        time_intervals.append(interval_dict)
+        current_time = end_interval_time
+
+    return time_intervals
+
+
+
 if __name__ == "__main__":
     clean_restaurant_collection()
     clean_menu_collection()
+    update_restaurant_collection()

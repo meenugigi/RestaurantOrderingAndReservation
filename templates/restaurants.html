@@ -1,71 +1,21 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>{{ service_name }}</title>
+  {% extends "layout.html" %}
+
+  {% block content %}
      <link rel="stylesheet" type="text/css" href="/static/styles/restaurants.css">
-</head>
+
 <body class="restaurants-page-body">
 
-   <div class="restaurant-page-header">
-        <h1><img src="static/images/flavour-fusion-icon.png" alt="category image" id="flavour-fusion-icon">{{ service_name }}</h1>
-
-       <div class="header-inner-group">
-           <form method="POST">
-                <div class="search-form-group">
-                    <input type="text" name="search-input" id="search-parameter" placeholder="Search by Restaurant/zipcode" required>
-                    <input class="search-button" type="submit" formaction="/get-restaurants" value="Search">
-                </div>
-            </form>
-                {% if first_name %}
-                    <div class="welcome-user">Hi, {{ first_name }}!</div>
-                    <div class="dropdown">
-                        <img src="static/images/show-more.png" class="show-more-icon" id="dropdown-icon">
-                        <div class="dropdown-content" id="dropdown-content">
-
-                            <div class="dropdown-element"><a href="view-my-orders">My Orders</a></div>
-                            <form class="dropdown-element" id="dropdown-element" action="/logout" method="post">
-                                <input type="submit" value="Logout" class="dropdown-element-logout">
-                            </form>
-                        </div>
-                    </div>
-                {% endif %}
-        </div>
-    </div>
-
    <form id="restaurant-form" method="POST" action="/get_menu">
-    <div class="restaurant-list">
-        {% for restaurant in matched_restaurants %}
-            <button class="card-button" id="card-button" type="submit" formaction="/get-menu" name="restaurant_id" value="{{ restaurant['id'] }}" >
-                {{ restaurant['name'] }}
-                  </button>
-        {% endfor %}
+        <div class="restaurant-list">
+            {% for restaurant in matched_restaurants %}
+                <button class="card-button" id="card-button" type="submit" formaction="/get-menu" name="restaurant_id" value="{{ restaurant['id'] }}" >
+                    {{ restaurant['name'] }}
+                      </button>
+            {% endfor %}
 
-    </div>
-</form>
-
+        </div>
+   </form>
 </body>
 </html>
 
-
-<script>
-    // JavaScript to toggle the visibility of the dropdown content
-document.addEventListener("DOMContentLoaded", function() {
-    var icon = document.getElementById("dropdown-icon");
-    var dropdownContent = document.getElementById("dropdown-content");
-
-    icon.addEventListener("click", function() {
-        dropdownContent.style.display = (dropdownContent.style.display === "block") ? "none" : "block";
-    });
-
-    // Close the dropdown if the user clicks outside of it
-    window.addEventListener("click", function(event) {
-        if (!event.target.matches("#dropdown-icon")) {
-            dropdownContent.style.display = "none";
-        }
-    });
-});
-
-
-
-</script>
-
+{% endblock %}

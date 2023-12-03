@@ -36,7 +36,7 @@ form{
 }
 
 /* section of form taking personal, address and payment details */
-.form-personal-details, .form-address-details, .form-payment-details {
+.inner-container{
     padding: 20px;
     border-radius: 8px;
     flex-grow: 1;
@@ -113,15 +113,5 @@ input[type="text"]:invalid, input[type="number"]:invalid {
 }
 
 
-.place-order-button {
-    padding: 10px 20px;
-    font-size: 16px;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: background-color 0.3s ease;
-}
 
 

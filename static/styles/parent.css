@@ -8,20 +8,16 @@ body {
     justify-content: center;
     font-family: 'Lucida Handwriting', cursive, sans-serif;
 }
-#flavour-fusion-icon{
-    width: 35px;
-    height: 35px;
-}
 
-/* page header and input form */
-h1{
+/* background wallpaper for all pages extending layout.html page */
+.layout-page-body{
+    background-image: url('../images/menu-page-wallpaper.jpg');
     color: white;
-    font-family: 'Lucida Handwriting', cursive, sans-serif;
 }
 
 
-.index-page-body, .restaurants-page-body, .menu-page-body, .order-checkout-page-body, .my-orders-page-body,
-.signup-page-body{
+/* page body for all pages */
+.index-page-body, .signup-page-body, .layout-page-body{
     background-size: 100% auto;
     background-repeat: no-repeat;
     background-attachment: fixed;
@@ -30,120 +26,104 @@ h1{
 }
 
 
-
-
-
-
-
-
-.search-form-group{
-    display: flex;
-    align-items: center;
-}
-
-.search-form-group input {
-    margin-right: 10px; /* Add spacing between input and button */
-}
-
-
-/*common attributes for the search input field and search button on restaurant, menu and checkout page. */
-#search-parameter, .search-button, .signup-button {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    font-size: 14px;
-}
-
-#search-parameter{
-    height: 20px;
-    width: 220px;
-}
-
-/* search button on restaurant, menu and checkout page. */
-.search-button {
-    cursor: pointer;
-    height: 42px;
-    color: white;
-}
-
-/* search button on restaurant, menu and checkout page - hover effect */
-.search-button:hover {
-    background-color: #0056b3;
-}
-
-
-
-
-
-
-
-/* common attributes for background color for individual menu card item on menu page and
-all form sections and order summary section on order checkout page */
-.card-grid-item, .form-personal-details, .form-address-details, .form-payment-details, .order-summary,
-.order-items-inner-container, .signup-page-container{
-    background-color: #130d06;
-    opacity: 0.8;
-}
-
-/* common attributes for search button on restaurant/menu page, add to cart button, checkout button on menu page
-and place order button on the order checkout page */
-.search-button, .place-order-button, .price > .add-to-cart-button, .checkout-button, .button, .login-button, .signup-button{
-    background-color: #4d6600;
-    font-size: 16px;
-}
-
-/* common attributes for  search button on restaurant/menu page add to cart button, checkout button on menu page
-and place order button on the order checkout page */
-.search-button:hover, .place-order-button:hover, .price > .add-to-cart-button:hover, .checkout-button:hover,
-.button:hover, .login-button:hover, .signup-button:hover{
-    background-color: #86b300;
-}
-
-
-.logout-button{
-    background-color: #4d6600;
-    padding: 5px 10px;
-    border: none;
-    border-radius: 5px;
-    font-size: 12px;
-}
-
-.welcome-user{
-    font-size: 13px;
-}
-
-
-.restaurant-page-header, .menu-page-header, .order-checkout-page-header,
-.my-orders-page-header, .header-inner-group {
+/* page header div on all web pages */
+.page-header, .header-inner-group {
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
 }
 
-/* error message for payment failure */
-#error{
-    color: red;
-    font-weight: bold;
-    font-size: 16px;
+
+/*-------------------------------- APPLICATION NAME AND ICON ON PAGE HEADER --------------- */
+/* application name icon */
+#flavour-fusion-icon{
+    width: 35px;
+    height: 35px;
+}
+
+/* page header - 'Flavour Fusion' text */
+h1{
+    color: white;
+    font-family: 'Lucida Handwriting', cursive, sans-serif;
+}
+
+/* page header - 'Flavour Fusion' text as link*/
+.page-header > h1 > a{
+    color: white;
+    font-family: 'Lucida Handwriting', cursive, sans-serif;
+    text-decoration: none;
 }
 
 
+/* ----------------------- SEARCH BY RESTAURANT / ZIP SEARCH BAR ON PAGE HEADER ---------------- */
+/* search by restaurant/zip searchbar on page header */
+.search-form-group{
+    display: flex;
+    align-items: center;
+}
+
+/* search by restaurant/zip input type fields on page header */
+.search-form-group input {
+    margin-right: 10px; /* Add spacing between input and button */
+}
+
+/* search by restaurant/zip input type text field on page header */
+#search-parameter{
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+     height: 20px;
+    width: 220px;
+}
+
+
+/* ----------------------------- INNER CONTAINER BACKGROUND EFFECT -------------------- */
+/* common attributes for background color for inner-container on all webpages */
+.card-grid-item, .inner-container{
+    background-color: #130d06;
+    opacity: 0.8;
+}
+
+
+
+
+/* --------------------------------- BUTTON ATTRIBUTES ON ALL PAGES ----------------------*/
+/* common attributes for button on all webpages */
+.price > .button, .button{
+    background-color: #4d6600;
+    font-size: 16px;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    cursor: pointer;
+}
+
+/* common attributes for button hover on all webpages */
+.price > .button:hover, .button:hover{
+    background-color: #86b300;
+}
+
+
+/* ----------------------------- USERNAME AND DROPDOWN OPTIONS ON ALL WEBPAGES --------------*/
+/* 'Hi, username' text on page header for all pages */
+.welcome-user{
+    font-size: 13px;
+}
+
+/* downward arrow icon on webpages to open dropdown */
+/* displayed on right side of username */
 .show-more-icon{
     width: 25px;
     height: 15px;
 }
 
-
-
-
-
-/*dropdown */
-
+/* dropdown */
 #dropdown-icon{
     cursor: pointer;
 }
-
 
 /* Hide the dropdown content by default */
 .dropdown-content {
@@ -161,7 +141,6 @@ and place order button on the order checkout page */
 .dropdown-element:hover {
     background-color: gray;
 }
-
 
 
 .dropdown-content a{
@@ -185,4 +164,12 @@ and place order button on the order checkout page */
 
 .dropdown-element-logout:hover{
     background-color: gray;
+}
+
+/* --------------------------- DISPLAY ERROR /WARNING MESSAGES -------------------*/
+/* error message for failures */
+#error{
+    color: red;
+    font-weight: bold;
+    font-size: 16px;
 }

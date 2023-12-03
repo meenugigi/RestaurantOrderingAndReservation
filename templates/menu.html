@@ -1,39 +1,22 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>{{ service_name }}</title>
-<!--    enables access to using jQuery-->
+  {% extends "layout.html" %}
+
+  {% block content %}
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
      <link rel="stylesheet" type="text/css" href="/static/styles/menu.css">
-</head>
+
 <body class="menu-page-body">
 
-<div class="menu-page-header">
-    <h1><img src="static/images/flavour-fusion-icon.png" alt="category image" id="flavour-fusion-icon">{{ service_name }}</h1>
-    <div class="header-inner-group">
-       <form method="POST">
-            <div class="search-form-group">
-                <input type="text" name="search-input" id="search-parameter" placeholder="Search by Restaurant/zipcode" required>
-                <input class="search-button" type="submit" formaction="/get-restaurants" value="Search">
+    <div class="menu-page-header">
+
+        <form id="make-reservations-form" method="POST">
+            <div class="reservations">
+                <input class="button" type="submit" formaction="/make_reservation" value="Reserve a table now!">
+                <input type="hidden" class="restaurant_id" name="restaurant_id" value="{{ restaurant_id }}">
             </div>
         </form>
-
-        {% if first_name %}
-                <div class="welcome-user">Hi, {{ first_name }}!</div>
-                <div class="dropdown">
-                    <img src="static/images/show-more.png" class="show-more-icon" id="dropdown-icon">
-                    <div class="dropdown-content" id="dropdown-content">
-
-                        <div class="dropdown-element"><a href="view-my-orders">My Orders</a></div>
-                        <form class="dropdown-element" id="dropdown-element" action="/logout" method="post">
-                            <input type="submit" value="Logout" class="dropdown-element-logout">
-                        </form>
-                    </div>
-                </div>
-            {% endif %}
-
     </div>
-</div>
+
+
 
 <div class="menu-page-split">
     <div class="menu-items">
@@ -48,7 +31,7 @@
                                 <h3>{{ item.name }}</h3>
                                 <p id="description">{{ item.description }}</p>
                                 <div class="price">{{ item.price }}
-                                  <button class="add-to-cart-button" type="button" onclick="addToCart('{{ item.name }}', '{{ item.price }}')">
+                                  <button class="button" type="button" onclick="addToCart('{{ item.name }}', '{{ item.price }}')">
                                     Add
                                 </button></div>
 
@@ -97,7 +80,7 @@
             <p class="your-cart-from-label">Your cart from </p>
             <p class="restaurant-name">{{ restaurant_name }}</p>
             <div class="show-checkout-amount"></div>
-            <input class="checkout-button" type="submit" formaction="/order-checkout" value="Checkout">
+            <input class="button" type="submit" formaction="/order-checkout" value="Checkout">
 
             <div class="show-cart-item-details"></div>
         </form>
@@ -320,26 +303,5 @@ function calculateCheckoutAmount(restaurant_id){
      isCartEmpty();
 
 
-
-
-        // JavaScript to toggle the visibility of the dropdown content
-document.addEventListener("DOMContentLoaded", function() {
-    var icon = document.getElementById("dropdown-icon");
-    var dropdownContent = document.getElementById("dropdown-content");
-
-    icon.addEventListener("click", function() {
-        dropdownContent.style.display = (dropdownContent.style.display === "block") ? "none" : "block";
-    });
-
-    // Close the dropdown if the user clicks outside of it
-    window.addEventListener("click", function(event) {
-        if (!event.target.matches("#dropdown-icon")) {
-            dropdownContent.style.display = "none";
-        }
-    });
-});
-
-
-
-
 </script>
+  {% endblock %}
