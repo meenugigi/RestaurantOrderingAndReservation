@@ -7,7 +7,7 @@ async def get_restaurants(request: Request):
        search bar and returns list of restaurants from 'Restaurants' collection in mongoDB for that specific location.
    """
     form_data = await request.form()
-    first_name = request.session.get("first_name")
+    first_name = request.session['user'].get("first_name")
     # takes address, zipcode, restaurant name as input
     input = form_data["search-input"]
     # Query MongoDB to find restaurants where the full address contains the obtained input
@@ -34,7 +34,7 @@ async def get_menu(request: Request):
     form_data = await request.form()
     restaurant_id = int(form_data.get('restaurant_id'))
     restaurant_name = collection_restaurant.find_one({"id": restaurant_id}, {"name": 1})
-    first_name = request.session.get("first_name")
+    first_name = request.session['user'].get("first_name")
     # create pipeline to get menu items from menu collection for the respective restaurant id.
     pipeline = [
         {
@@ -67,7 +67,7 @@ async def add_to_cart(request: Request):
     item_price = form_data.get("item-price")
     restaurant_name = form_data.get("restaurant_name")
     restaurant_id = int(form_data.get('restaurant_id'))
-    email = request.session.get("email")
+    email = request.session['user'].get("email")
 
     existing_item = collection_food_cart.find_one({
         'restaurant_id': restaurant_id,
@@ -98,7 +98,7 @@ async def get_cart_items(request: Request):
    """
     form_data = await request.form()
     restaurant_id = int(form_data.get("restaurant_id"))
-    email = request.session.get("email")
+    email = request.session['user'].get("email")
     try:
         # Retrieve cart items for the given restaurant_id from MongoDB
         cart_items = list(collection_food_cart.find({"restaurant_id": restaurant_id, "email": email}))
@@ -206,10 +206,10 @@ async def order_checkout(request: Request):
        Displays fields to enter personal details, address and payment details.
    """
     form_data = await request.form()
-    first_name = request.session.get("first_name")
-    last_name = request.session.get("last_name")
-    email = request.session.get("email")
-    contact = request.session.get("contact")
+    first_name = request.session['user'].get("first_name")
+    last_name = request.session['user'].get("last_name")
+    email = request.session['user'].get("email")
+    contact = request.session['user'].get("contact")
     restaurant_name = form_data.get("restaurant_name")
     restaurant_id = int(form_data.get("restaurant_id"))
 
@@ -245,11 +245,11 @@ async def place_order(request: Request):
        If payment or database updates were unsuccessful, throw error message and stay on the same place-order page.
    """
     (address, card_number, contact, cvc, email, exp_month, exp_year, first_name, last_name, restaurant_id,
-     restaurant_name, total_amount, unit_suite, zip_code) = await get_inputs(request)
-    first_name = request.session.get("first_name")
-    last_name = request.session.get("last_name")
-    email = request.session.get("email")
-    contact = request.session.get("contact")
+     restaurant_name, total_amount, unit_suite, zip_code) = await _helper_get_inputs(request)
+    first_name = request.session['user'].get("first_name")
+    last_name = request.session['user'].get("last_name")
+    email = request.session['user'].get("email")
+    contact = request.session['user'].get("contact")
 
     # fetching zipcode to auto fill zipcode input field on form on checkout page.
     restaurant_zipcode = collection_restaurant.find_one({"id": restaurant_id}, {"zip_code": 1})
@@ -259,7 +259,7 @@ async def place_order(request: Request):
 
     try:
         # validate payment credentials
-        validate_payment_details(card_number, exp_month, exp_year, cvc, total_amount)
+        _helper_validate_payment_details(card_number, exp_month, exp_year, cvc, total_amount)
         # get current timestamp
         order_timestamp = str(datetime.now())
         format_datetime = datetime.strptime(order_timestamp, "%Y-%m-%d %H:%M:%S.%f").strftime("%Y-%m-%d %H:%M:%S")
@@ -325,8 +325,8 @@ async def get_my_orders(request: Request):
        store 'restaurant_name' to remove data redundancy in database.)
        Formats 'timestamp' value (eg: 2023-11-26T18:54:49.000+00:00 is formatted to display 2023-11-26 on the UI).
    """
-    first_name = request.session.get("first_name")
-    email = request.session.get("email")
+    first_name = request.session['user'].get("first_name")
+    email = request.session['user'].get("email")
     restaurant_ids = []
     restaurant_names = []
     format_datetime = []
@@ -353,7 +353,7 @@ async def get_my_orders(request: Request):
                                              "first_name": first_name, "current_account_placed_orders": current_account_placed_orders})
 
 
-async def get_inputs(request):
+async def _helper_get_inputs(request):
     """
        Gets user inputted data from place-order page.
    """
@@ -377,7 +377,7 @@ async def get_inputs(request):
 
 
 
-def validate_payment_details(card_number, exp_month, exp_year, cvc, total_amount):
+def _helper_validate_payment_details(card_number, exp_month, exp_year, cvc, total_amount):
     """
        Validates payment using Stripe API.
    """

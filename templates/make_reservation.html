@@ -10,7 +10,6 @@
     <form action="/save-reservation-data" method="post" class="inner-container" id="reservation-form">
 
         <div>
-            <label for="slots">Choose a slot:</label>
             <div class="form-group">
                 <label for="contact">Reserve for:</label>
                 <input type="date" id="date" name="date" min="{{ min_date }}" max="{{ max_date }}" required>
@@ -23,18 +22,22 @@
                 {% endfor %}
             </select>
 
+            <div class="form-group">
+                <label for="no_of_guests">No of guests:</label>
+                <input type="number" id="no_of_guests" name="no_of_guests" value="1" required>
+            </div>
 
         </div>
 
         <div>
             <div class="form-format">
                 <div class="form-group">
-                    <label for="first_name">First Name:</label>
-                    <input type="text" id="first_name" name="first_name" value="{{ first_name }}" required>
+                    <label for="full_name">Full Name:</label>
+                    <input type="text" id="full_name" name="full_name" value="{{ first_name }} {{  last_name }}" required>
                 </div>
                 <div class="form-group">
-                    <label for="last_name">Last Name:</label>
-                    <input type="text" id="last_name" name="last_name" value="{{ last_name }}" required>
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" value="{{ email }}" required>
                 </div>
             </div>
 
@@ -67,21 +70,20 @@
     });
     console.log('Data ID Values for selected slots:', selectedSlotIds);
     const date = formData.find(item => item.name === 'date').value;
-    const first_name = formData.find(item => item.name === 'first_name').value;
-    const last_name = formData.find(item => item.name === 'last_name').value;
+    const full_name = formData.find(item => item.name === 'full_name').value;
+    const email = formData.find(item => item.name === 'email').value;
     const contact = formData.find(item => item.name === 'contact').value;
+    const no_of_guests = formData.find(item => item.name === 'no_of_guests').value;
     const restaurant_id = formData.find(item => item.name === 'restaurant_id').value;
 
     console.log(selectedSlots, selectedSlotIds)
-<!--    console.log(igh);-->
 
-    // AJAX request using jQuery
     $.ajax({
         type: 'POST',
         url: 'save-reservation-data',
         contentType: 'application/json',
-        data: JSON.stringify({ slots: selectedSlots, slot_ids: selectedSlotIds, first_name: first_name, last_name: last_name, date: date,
-                                contact: contact, restaurant_id: restaurant_id }),
+        data: JSON.stringify({ slots: selectedSlots, slot_ids: selectedSlotIds, full_name: full_name, email: email, date: date,
+                                contact: contact, restaurant_id: restaurant_id, no_of_guests: no_of_guests }),
         success: function(response) {
             console.log('Data sent successfully');
             var itemsHtml = "Reservation successful!";

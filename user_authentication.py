@@ -9,7 +9,8 @@ async def default_page(request: Request):
        Else, displays log in and sign up buttons.
    """
     try:
-        first_name = request.session.get("first_name")
+        user = request.session['user']
+        first_name = user.get("first_name")
         return templates.TemplateResponse("index.html", {"request": request,
                                                          "service_name": "FlavorFusion", "first_name": first_name})
     except Exception as e:
@@ -57,12 +58,21 @@ async def validate_login(request: Request):
     username = form_data.get("username")
     password = form_data.get("password")
 
+    user_data_session = request.session['user']
     user = collection_account_info.find_one({"username": username})
     if user and pwd_context.verify(password, user['password']):
-        request.session['first_name'] = user['first_name']
-        request.session['last_name'] = user['last_name']
-        request.session['email'] = user['email']
-        request.session['contact'] = user['contact']
+        user_data = {
+            "first_name": user['first_name'],
+            "last_name": user['last_name'],
+            "email": user['email'],
+            "contact": user['contact'],
+            "address": user['address'],
+            "unit_suite": user['unit_suite'],
+            "zip_code": user['zip_code']
+        }
+        request.session['user'] = user_data
+        print("user_data_session", user_data_session.get("first_name"))
+
         return RedirectResponse(url="/", status_code=303)
     return templates.TemplateResponse("login.html", {"request": request, "service_name": "FlavorFusion",
                                                      "action": "Log in", "error": "Invalid login credentials!"})
@@ -90,9 +100,19 @@ async def validate_signup(request: Request):
     collection_account_info.insert_one({"first_name": first_name, "last_name": last_name, "username": username,
                                          "password": encrypted_password, "email": email, "contact": contact, "address": address,
                                          "unit_suite": unit_suite, "zip_code": zip_code})
-    request.session['first_name'] = first_name
-    request.session['last_name'] = last_name
-    request.session['email'] = email
-    request.session['contact'] = contact
+    user_data = {
+        "first_name": first_name,
+        "last_name": last_name,
+        "email": email,
+        "contact": contact,
+        "address": address,
+        "unit_suite": unit_suite,
+        "zip_code": zip_code
+    }
+    request.session['user'] = user_data
+    # request.session['first_name'] = first_name
+    # request.session['last_name'] = last_name
+    # request.session['email'] = email
+    # request.session['contact'] = contact
     return RedirectResponse(url="/", status_code=303)
 

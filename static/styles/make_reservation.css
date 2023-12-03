@@ -25,7 +25,7 @@ select {
     padding: 8px;
     margin-bottom: 20px;
 }
-.form-group > input[type="text"],
+.form-group > input[type="text"], .form-group > input[type="email"], .form-group > input[type="number"],
 .form-group > input[type="tel"], .form-group > input[type="date"] {
     width: calc(100% - 18px);
     padding: 8px;

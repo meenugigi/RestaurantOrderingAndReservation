@@ -6,9 +6,17 @@ client = Client(twilio_acoount_sid, twilio_auth_token)
 
 
 async def make_reservation(request: Request):
-    first_name = request.session.get("first_name")
-    last_name = request.session.get("last_name")
-    contact =  request.session.get("contact")
+    """
+        Functionality that allows users to make reservations. Allows users to reverse restaurant tables for next day.
+        First fetches all the reservations for a given restaurant. Then fetches restaurant capacity.
+        Further checks to see if the current number of bookings for that slot < max capacity of restaurant.
+        If yes, then displays that slot on dropdown and is available to reserve.
+   """
+    user = request.session.get("user")
+    first_name = user.get("first_name")
+    last_name = user.get("last_name")
+    email = user.get("email")
+    contact =  user.get("contact")
     form_data = await request.form()
     restaurant_id = int(form_data.get("restaurant_id"))
     reservation_slot_ids = []
@@ -18,13 +26,12 @@ async def make_reservation(request: Request):
     min_date = (datetime.now()+ timedelta(days=1)).strftime('%Y-%m-%d')
     max_date = (datetime.now() + timedelta(days=1)).strftime('%Y-%m-%d')
 
-
     # fetch all reservations array for the list containing 'one' dictionary with '_id' as the key and '"reservations"
     # array as the key value. This list includes available and unavailable slots.
     get_all_reservations = (list(collection_restaurant.find({"id": restaurant_id}, {"reservations": 1})))[0]['reservations']
 
     # call method to get only available slots
-    await get_available_slots(available_reservation_slots, get_all_reservations, reservation_slot_ids, restaurant_id)
+    await _helper_get_available_slots(available_reservation_slots, get_all_reservations, reservation_slot_ids, restaurant_id)
 
 
     available_to_reserve_slot_list = []
@@ -36,15 +43,21 @@ async def make_reservation(request: Request):
         available_to_reserve_slot_list.append(data)
 
     return templates.TemplateResponse("make_reservation.html", {"request": request,
-                                                 "service_name": "FlavorFusion", "first_name": first_name,
+                                                 "service_name": "FlavorFusion", "first_name": first_name, "email": email,
                                                  "last_name": last_name, "contact": contact, "min_date": min_date, "max_date": max_date,
                                                  "restaurant_id": restaurant_id, "reservation_slots": available_reservation_slots,
-                                                                "available_to_reserve_slot_list": available_to_reserve_slot_list})
+                                                 "available_to_reserve_slot_list": available_to_reserve_slot_list})
 
 
-async def get_available_slots(available_reservation_slots, get_all_reservations, reservation_slot_ids, restaurant_id):
+async def _helper_get_available_slots(available_reservation_slots, get_all_reservations, reservation_slot_ids, restaurant_id):
+    """
+        Helper method to check if a given slot is available for reservation. Fetches restaurant capacity.
+        Further checks to see if the current number of bookings for that slot < max capacity of restaurant.
+        If yes, then displays that slot on dropdown and is available to reserve.
+   """
     # get_current_time = datetime.now().strftime("%I:%M %p")
     # current_time = datetime.strptime(get_current_time, "%I:%M %p")
+
     restaurant_capacity = collection_restaurant.find_one({"id": restaurant_id}, {"max_capacity": 1})
     # if the dict value for a slot < max capacity of restaurant, add that slot to available_reservation_slots list
     for reservation in get_all_reservations:
@@ -54,6 +67,10 @@ async def get_available_slots(available_reservation_slots, get_all_reservations,
         if reservation[slot[0]] < restaurant_capacity['max_capacity']:
             available_reservation_slots.append(list(reservation.keys()))
             reservation_slot_ids.append(reservation['_id'])
+    print("capacity:", restaurant_capacity)
+
+    for r in get_all_reservations:
+        print("------- ", r)
 
         # logic to display time slots greater than current time only. change min_date to today's date.
         # start_time = slot[0].split("-")
@@ -62,24 +79,31 @@ async def get_available_slots(available_reservation_slots, get_all_reservations,
 
 
 async def save_reservation_data(request: Request):
+    """
+        Save reservation form data into mongoDB 'Reservation' collection.
+        Uses Twilio API to send text messages on customer contact to confirm reservation.
+   """
     form_data = await request.json()
-    email = request.session.get("email")
-    first_name = form_data.get("first_name")
-    last_name = form_data.get("last_name")
+    user = request.session.get("user")
+    reserved_by = user.get("email")
+    full_name = form_data.get("full_name")
+    email = form_data.get("email")
     contact = form_data.get("contact")
     date = form_data.get("date")
+    no_of_guests = int(form_data.get("no_of_guests"))
     slot_reserved = form_data.get('slots', [])
     restaurant_id = int(form_data.get("restaurant_id"))
     slot_ids = form_data.get("slot_ids", [])
+
     try:
-        collection_reservations.insert_one({"reserved_by": email, "first_name": first_name, "last_name": last_name,
-                                            "restaurant_id":restaurant_id, "contact": contact, "reservation_date": date,
-                                            "slots_booked": slot_reserved})
+        collection_reservations.insert_one({"reserved_by": reserved_by, "full_name": full_name, "email": email,
+                                            "restaurant_id":restaurant_id, "no_of_guests": no_of_guests,
+                                            "contact": contact, "reservation_date": date, "slots_booked": slot_reserved})
 
         for id, dict_key in zip(slot_ids, slot_reserved):
             slot_id = ObjectId(id)
             collection_restaurant.update_one({"id": restaurant_id, "reservations._id": slot_id},
-                                         {"$inc": {f"reservations.$.{dict_key}": 1}})
+                                         {"$inc": {f"reservations.$.{dict_key}": no_of_guests}})
 
         send_text_message = Client(twilio_acoount_sid, twilio_auth_token).messages.create(
             body="Your reservation is successful! Thank you.",
@@ -94,8 +118,15 @@ async def save_reservation_data(request: Request):
 
 
 async def show_reservations(request: Request):
-    first_name = request.session.get("first_name")
-    email = request.session.get("email")
+    """
+        Fetches all reservations made by logged in user. Displays only upcoming reservations
+        i.e displays only those reservations that have 'reservation_date' in mongoDB < today's date.
+        Fetches restaurant_name from 'Restaurant' collection using 'id' attribute since 'Reservations' collection does
+        not store restaurant name to maintain database independency.
+   """
+    user = request.session.get("user")
+    first_name = user.get("first_name")
+    email = user.get("email")
     current_date = datetime.now().strftime('%Y-%m-%d')
 
     get_bookings = list(collection_reservations.find({"reserved_by": email, "reservation_date": {"$gte": current_date}}))
@@ -121,8 +152,11 @@ async def show_reservations(request: Request):
 
 
 
-
 async def cancel_reservation(request: Request):
+    """
+        Fetches the reservation_id of the reservation that needs to be cancelled.
+        Removes the reservation from mongoDB.
+   """
     form_data = await request.form()
     reservation_id = form_data.get("reservation_id")
 

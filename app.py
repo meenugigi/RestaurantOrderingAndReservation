@@ -275,6 +275,13 @@ async def get_my_orders(request: Request):
 
 @app.post("/make_reservation")
 async def make_reservation(request: Request):
+    """
+        Functionality that allows users to make reservations. Allows users to reverse restaurant tables for next day.
+        First fetches all the reservations for a given restaurant. Then fetches restaurant capacity.
+        For every reservation, mongoDB increments the dict value corresponding to slot key with the 'no of guests' value.
+        Further checks to see if the dict value corresponding to slot key < max capacity of restaurant.
+        If yes, then displays that slot on dropdown and is available to reserve.
+   """
     try:
         response = await reservations.make_reservation(request)
         return response
@@ -284,6 +291,10 @@ async def make_reservation(request: Request):
 
 @app.post("/save-reservation-data")
 async def save_reservation_data(request: Request):
+    """
+        Save reservation form data into mongoDB 'Reservation' collection.
+        Uses Twilio API to send text messages on customer contact to confirm reservation.
+   """
     try:
         response = await reservations.save_reservation_data(request)
         return response
@@ -293,6 +304,12 @@ async def save_reservation_data(request: Request):
 
 @app.get("/show-reservations")
 async def show_reservations(request: Request):
+    """
+        Fetches all reservations made by logged in user. Displays only upcoming reservations
+        i.e displays only those reservations that have 'reservation_date' in mongoDB < today's date.
+        Fetches restaurant_name from 'Restaurant' collection using 'id' attribute since 'Reservations' collection does
+        not store restaurant name to maintain database independency.
+   """
     try:
         response = await reservations.show_reservations(request)
         return response
@@ -303,6 +320,10 @@ async def show_reservations(request: Request):
 
 @app.post("/cancel-reservation")
 async def cancel_reservation(request: Request):
+    """
+        Fetches the reservation_id of the reservation that needs to be cancelled.
+        Removes the reservation from mongoDB.
+   """
     try:
         response = await reservations.cancel_reservation(request)
         return response
@@ -312,8 +333,7 @@ async def cancel_reservation(request: Request):
 
 
 if __name__ == "__main__":
-    # Code here will be executed only when this script is run directly
-    print("Executing...")
+    print("To run this application, open terminal and run command 'uvicorn app:app --reload'.")
 
 
 
