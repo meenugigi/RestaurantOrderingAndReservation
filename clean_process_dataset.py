@@ -30,6 +30,8 @@ def clean_restaurant_collection():
         {
             "$set": {"name": current_name.replace("&amp;", "&")}
         })
+
+
     print("RESTAURANT COLLECTION CLEANED!")
 
 
@@ -57,6 +59,17 @@ def clean_menu_collection():
         },
             {
                 "$set": {"name": current_item_name.replace("&amp;", "&")}
+            })
+
+    menu_item_name = list(collections_menu.find({"name": {"$regex": "'"}}))
+    for item in menu_item_name:
+        current_item_name = item["name"];
+
+        collections_menu.update_one({
+            "_id": item["_id"]
+        },
+            {
+                "$set": {"name": current_item_name.replace("'", "")}
             })
     print("MENU COLLECTION CLEANED!")
 
@@ -116,6 +129,6 @@ def generate_time_intervals(start_time, end_time):
 
 
 if __name__ == "__main__":
-    clean_restaurant_collection()
+    # clean_restaurant_collection()
     clean_menu_collection()
-    update_restaurant_collection()
+    # update_restaurant_collection()

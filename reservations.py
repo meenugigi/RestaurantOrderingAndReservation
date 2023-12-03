@@ -2,7 +2,7 @@ import ast
 
 import manage_imports
 from manage_imports import *
-
+client = Client(twilio_acoount_sid, twilio_auth_token)
 
 
 async def make_reservation(request: Request):
@@ -71,15 +71,24 @@ async def save_reservation_data(request: Request):
     slot_reserved = form_data.get('slots', [])
     restaurant_id = int(form_data.get("restaurant_id"))
     slot_ids = form_data.get("slot_ids", [])
+    try:
+        collection_reservations.insert_one({"reserved_by": email, "first_name": first_name, "last_name": last_name,
+                                            "restaurant_id":restaurant_id, "contact": contact, "reservation_date": date,
+                                            "slots_booked": slot_reserved})
 
-    collection_reservations.insert_one({"reserved_by": email, "first_name": first_name, "last_name": last_name,
-                                        "restaurant_id":restaurant_id, "contact": contact, "reservation_date": date,
-                                        "slots_booked": slot_reserved})
+        for id, dict_key in zip(slot_ids, slot_reserved):
+            slot_id = ObjectId(id)
+            collection_restaurant.update_one({"id": restaurant_id, "reservations._id": slot_id},
+                                         {"$inc": {f"reservations.$.{dict_key}": 1}})
 
-    for id, dict_key in zip(slot_ids, slot_reserved):
-        slot_id = ObjectId(id)
-        collection_restaurant.update_one({"id": restaurant_id, "reservations._id": slot_id},
-                                     {"$inc": {f"reservations.$.{dict_key}": 1}})
+        send_text_message = Client(twilio_acoount_sid, twilio_auth_token).messages.create(
+            body="Your reservation is successful! Thank you.",
+            from_=twilio_phone_number,
+            to=contact
+        )
+        print("status ", send_text_message.status)
+    except Exception as e:
+        print("Reservation failed!", e)
 
 
 

@@ -12,8 +12,8 @@ from starlette.middleware.sessions import SessionMiddleware
 from passlib.context import CryptContext
 from datetime import datetime, timedelta
 import asyncio
-
-from env import STRIPE_API_KEY, COOKIE_KEY, SESSION_SECRET_KEY
+from twilio.rest import Client
+from env import *
 
 # for payment using stripe api
 stripe.api_key = STRIPE_API_KEY
@@ -21,6 +21,9 @@ stripe.api_key = STRIPE_API_KEY
 cookie_key = COOKIE_KEY  # Replace with your secret key
 security = APIKeyCookie(name="session", auto_error=False)
 SECRET_KEY = SESSION_SECRET_KEY
+twilio_acoount_sid = TWILIO_ACCOUNT_SID
+twilio_auth_token = TWILIO_AUTH_TOKEN
+twilio_phone_number = TWILIO_PHONE_NUMBER
 
 
 app = FastAPI()
@@ -29,6 +32,8 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # Password hashing helper using bcrypt
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+client = Client(twilio_acoount_sid, twilio_auth_token)
 
 # MongoDB connection URL
 MONGODB_URL = "mongodb://localhost:27017/"

@@ -41,8 +41,11 @@ async def default_page(request: Request):
        The default start up page. Fetches username from session data and displays username if user has logged in.
        Else, displays log in and sign up buttons.
    """
-    response = await user_authentication.default_page(request)
-    return response
+    try:
+        response = await user_authentication.default_page(request)
+        return response
+    except Exception as e:
+        print("Failure on Default-Page ", e)
 
 
 @app.post("/sign-up")
@@ -50,16 +53,23 @@ async def signup(request: Request):
     """
        Directs user to sign-up page.
    """
-    response = await user_authentication.signup(request)
-    return response
+    try:
+        response = await user_authentication.signup(request)
+        return response
+    except Exception as e:
+        print("Failure on Signup-Page ", e)
+
 
 @app.post("/login")
 async def login(request: Request):
     """
        Directs user to log-in page.
    """
-    response = await user_authentication.login(request)
-    return response
+    try:
+        response = await user_authentication.login(request)
+        return response
+    except Exception as e:
+        print("Failure on Login-Page ", e)
 
 @app.post("/logout")
 async def logout(request: Request):
@@ -67,8 +77,11 @@ async def logout(request: Request):
        Clears all session data for an user when user logs out.
        Redirects to default page upon logout.
    """
-    response = await user_authentication.logout(request)
-    return response
+    try:
+        response = await user_authentication.logout(request)
+        return response
+    except Exception as e:
+        print("Failure on Logout-Page ", e)
 
 
 @app.post("/validate-login")
@@ -78,8 +91,11 @@ async def validate_login(request: Request):
        Upon successful validation, stores user data in session and redirects user to default home page.
        If login unsuccessful, throws an error and stays on log in page.
    """
-    response = await user_authentication.validate_login(request)
-    return response
+    try:
+        response = await user_authentication.validate_login(request)
+        return response
+    except Exception as e:
+        print("Failure on Validate-Login-Page ", e)
 
 
 @app.post("/submit-form")
@@ -89,8 +105,11 @@ async def validate_signup(request: Request):
        Inserts data into 'Accounts' collection on mongoDB. Stores password in encrypted format.
        Saves data in session. Redirects user to default home page.
    """
-    response = await user_authentication.validate_signup(request)
-    return response
+    try:
+        response = await user_authentication.validate_signup(request)
+        return response
+    except Exception as e:
+        print("Failure on Validate-Signup-Page ", e)
 
 
 @app.post("/get-restaurants")
@@ -99,8 +118,11 @@ async def get_restaurants(request: Request):
        Fetches user-firstname from session data. Takes a restaurant name/ zip/ address location string from the
        search bar and returns list of restaurants from 'Restaurants' collection in mongoDB for that specific location.
    """
-    response = await restaurant_orders.get_restaurants(request)
-    return response
+    try:
+        response = await restaurant_orders.get_restaurants(request)
+        return response
+    except Exception as e:
+        print("Failure on Get-Restaurants-Page ", e)
 
 
 @app.post('/get-menu')
@@ -109,8 +131,11 @@ async def get_menu(request: Request):
        Fetches the list of menu items from the 'Menu' collection in mongoDB against the requested restaurant id.
        Groups the menu items by category attribute.
    """
-    response = await restaurant_orders.get_menu(request)
-    return response
+    try:
+        response = await restaurant_orders.get_menu(request)
+        return response
+    except Exception as e:
+        print("Failure on Get-Menu-Page ", e)
 
 @app.post("/add-to-cart")
 async def add_to_cart(request: Request):
@@ -120,8 +145,11 @@ async def add_to_cart(request: Request):
        Re-clicking 'Add' button against previously added item, increases quantity by 1 and updates the quantity
        against the same item in the 'Food-Cart' collection in mongoDB.
    """
-    response = await restaurant_orders.add_to_cart(request)
-    return response
+    try:
+        response = await restaurant_orders.add_to_cart(request)
+        return response
+    except Exception as e:
+        print("Failure on Add-To-Cart-Page ", e)
 
 
 @app.post("/get-cart-items")
@@ -130,8 +158,11 @@ async def get_cart_items(request: Request):
        Fetches cart items from 'Food-Cart' collection in mongoDB against the requested restaurant id.
        Displays cart items on menu page when user adds item to cart.
    """
-    response = await restaurant_orders.get_cart_items(request)
-    return response
+    try:
+        response = await restaurant_orders.get_cart_items(request)
+        return response
+    except Exception as e:
+        print("Failure on Get-Cart-Items-Functionality ", e)
 
 
 @app.post("/calculate-checkout-amount")
@@ -140,8 +171,11 @@ async def calculate_checkout_amount(request: Request):
        Calculates total checkout amount for all items added to cart for a specific restaurant id.
        The total amount is displayed on the menu page.
    """
-    response = await restaurant_orders.calculate_checkout_amount(request)
-    return response
+    try:
+        response = await restaurant_orders.calculate_checkout_amount(request)
+        return response
+    except Exception as e:
+        print("Failure on Calculate-Checkout-Amount-Functionality ", e)
 
 
 @app.post("/delete-from-cart")
@@ -150,8 +184,11 @@ async def delete_from_cart(request: Request):
        Functionality to delete an item from cart on clicking the 'delete icon' on UI.
        Removes the item from 'Food-Cart' collection in mongoDB.
    """
-    response = await restaurant_orders.delete_from_cart(request)
-    return response
+    try:
+        response = await restaurant_orders.delete_from_cart(request)
+        return response
+    except Exception as e:
+        print("Failure on Delete-From-Cart-Functionality ", e)
 
 
 @app.post("/decrease-item-quantity-cart")
@@ -161,8 +198,11 @@ async def reduce_item_quantity_cart(request: Request):
        If quantity == 1, deletes item from cart.
        Updates are made in 'Food-Cart' collection on mongoDB.
    """
-    response = await restaurant_orders.reduce_item_quantity_cart(request)
-    return response
+    try:
+        response = await restaurant_orders.reduce_item_quantity_cart(request)
+        return response
+    except Exception as e:
+        print("Failure on Reduce-Item-From-Cart-Functionality ", e)
 
 
 @app.post("/increase-item-quantity-cart")
@@ -171,9 +211,11 @@ async def increase_item_quantity_cart(request: Request):
        Functionality to increase item quantity by 1 on clicking the 'plus icon' on UI.
        Updates are made in 'Food-Cart' collection on mongoDB.
    """
-    response = await restaurant_orders.get_cart_items(increase_item_quantity_cart)
-    return response
-
+    try:
+        response = await restaurant_orders.get_cart_items(increase_item_quantity_cart)
+        return response
+    except Exception as e:
+        print("Failure on Increase-Item-From-Cart-Functionality ", e)
 
 @app.post("/order-checkout")
 async def order_checkout(request: Request):
@@ -183,8 +225,11 @@ async def order_checkout(request: Request):
        Displays the details of the items to checkout along with price and quantity.
        Displays fields to enter personal details, address and payment details.
    """
-    response = await restaurant_orders.order_checkout(request)
-    return response
+    try:
+        response = await restaurant_orders.order_checkout(request)
+        return response
+    except Exception as e:
+        print("Failure on Order-Checkout-Page ", e)
 
 
 @app.post("/place-order")
@@ -204,9 +249,11 @@ async def place_order(request: Request):
        If payment and database updates were successful, redirect user to view-my-orders page.
        If payment or database updates were unsuccessful, throw error message and stay on the same place-order page.
    """
-    response = await restaurant_orders.place_order(request)
-    return response
-
+    try:
+        response = await restaurant_orders.place_order(request)
+        return response
+    except Exception as e:
+        print("Failure on Place-Order-Page ", e)
 
 
 
@@ -219,37 +266,48 @@ async def get_my_orders(request: Request):
        store 'restaurant_name' to remove data redundancy in database.)
        Formats 'timestamp' value (eg: 2023-11-26T18:54:49.000+00:00 is formatted to display 2023-11-26 on the UI).
    """
-    response = await restaurant_orders.get_my_orders(request)
-    return response
-
-
+    try:
+        response = await restaurant_orders.get_my_orders(request)
+        return response
+    except Exception as e:
+        print("Failure on Get-My-Orders_page ", e)
 
 
 @app.post("/make_reservation")
 async def make_reservation(request: Request):
-    response = await reservations.make_reservation(request)
-    return response
+    try:
+        response = await reservations.make_reservation(request)
+        return response
+    except Exception as e:
+        print("Failure on Make-Reservation-Page ", e)
 
 
 @app.post("/save-reservation-data")
 async def save_reservation_data(request: Request):
-    response = await reservations.save_reservation_data(request)
-    return response
+    try:
+        response = await reservations.save_reservation_data(request)
+        return response
+    except Exception as e:
+        print("Failure on Save-Reservation-Functionality ", e)
 
 
 @app.get("/show-reservations")
 async def show_reservations(request: Request):
-    response = await reservations.show_reservations(request)
-    return response
+    try:
+        response = await reservations.show_reservations(request)
+        return response
+    except Exception as e:
+        print("Failure on Show-Reservations-Functionality ", e)
 
 
 
 @app.post("/cancel-reservation")
 async def cancel_reservation(request: Request):
-    response = await reservations.cancel_reservation(request)
-    return response
-
-
+    try:
+        response = await reservations.cancel_reservation(request)
+        return response
+    except Exception as e:
+        print("Failure on Cancel-Reservations-Functionality ", e)
 
 
 
