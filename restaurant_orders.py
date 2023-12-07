@@ -26,13 +26,16 @@ async def get_restaurants(request: Request):
 
 
 
-async def get_menu(request: Request):
+async def get_menu(request: Request, restaurant_id: int = Form(...)):
     """
        Fetches the list of menu items from the 'Menu' collection in mongoDB against the requested restaurant id.
        Groups the menu items by category attribute.
    """
-    form_data = await request.form()
-    restaurant_id = int(form_data.get('restaurant_id'))
+    # form_data = await request.form()
+    restaurant_details = RestaurantID(
+        restaurant_id=restaurant_id
+    )
+    # restaurant_id = int(form_data.get('restaurant_id'))
     restaurant_name = collection_restaurant.find_one({"id": restaurant_id}, {"name": 1})
     first_name = request.session['user'].get("first_name")
     # create pipeline to get menu items from menu collection for the respective restaurant id.
@@ -182,6 +185,7 @@ async def increase_item_quantity_cart(request: Request):
    """
     form_data = await request.form()
     item_id = form_data.get("item_id")
+    print("item id: ", item_id)
     item_detail = collection_food_cart.find_one({"_id": ObjectId(item_id)})
     if item_detail:
         collection_food_cart.update_one({
@@ -228,7 +232,11 @@ async def order_checkout(request: Request):
 
 
 
-async def place_order(request: Request):
+async def place_order(request: Request, restaurant_id: int = Form(...), restaurant_name: str = Form(...),
+                      first_name: str = Form(...), last_name: str = Form(...), email: EmailStr = Form(...),
+                      contact: str = Form(...), address: str = Form(...), unit_suite: str = Form(...),
+                      zip_code: str = Form(...), card_number: str = Form(...), exp_month: str = Form(...),
+                      exp_year: str = Form(...), cvc: str = Form(...), total_amount: float = Form(...)):
     """
        Autofills data on place-order page for input fields using stored session data.
        Displays the details of items being checked out along with price and quantity details.
@@ -244,31 +252,34 @@ async def place_order(request: Request):
        If payment and database updates were successful, redirect user to view-my-orders page.
        If payment or database updates were unsuccessful, throw error message and stay on the same place-order page.
    """
-    (address, card_number, contact, cvc, email, exp_month, exp_year, first_name, last_name, restaurant_id,
-     restaurant_name, total_amount, unit_suite, zip_code) = await _helper_get_inputs(request)
+    order_details = await _helper_get_inputs(request, restaurant_id, restaurant_name, first_name, last_name, email,
+                                             contact, address, unit_suite, zip_code, card_number, exp_month, exp_year,
+                                             cvc, total_amount)
+
     first_name = request.session['user'].get("first_name")
     last_name = request.session['user'].get("last_name")
     email = request.session['user'].get("email")
     contact = request.session['user'].get("contact")
 
     # fetching zipcode to auto fill zipcode input field on form on checkout page.
-    restaurant_zipcode = collection_restaurant.find_one({"id": restaurant_id}, {"zip_code": 1})
+    restaurant_zipcode = collection_restaurant.find_one({"id": order_details.restaurant_id}, {"zip_code": 1})
     # fetch all items to checkout for a specific restaurant id.
-    items_to_checkout = list(collection_food_cart.find({"restaurant_id": restaurant_id},
+    items_to_checkout = list(collection_food_cart.find({"restaurant_id": order_details.restaurant_id},
                                                        {"item_name":1, "item_price":1, "quantity":1}))
 
     try:
         # validate payment credentials
-        _helper_validate_payment_details(card_number, exp_month, exp_year, cvc, total_amount)
+        _helper_validate_payment_details(order_details.card_number, order_details.exp_month, order_details.exp_year,
+                                         order_details.cvc, order_details.total_amount)
         # get current timestamp
         order_timestamp = str(datetime.now())
         format_datetime = datetime.strptime(order_timestamp, "%Y-%m-%d %H:%M:%S.%f").strftime("%Y-%m-%d %H:%M:%S")
 
         # creating a structure that contains a list of checked out items for each order placed.
         order = {
-            "email": email,
-            "restaurant_id": restaurant_id,
-            "total_amount": total_amount,
+            "email": order_details.email,
+            "restaurant_id": order_details.restaurant_id,
+            "total_amount": order_details.total_amount,
             "timestamp": datetime.strptime(format_datetime, "%Y-%m-%d %H:%M:%S"),
             "status": "Order Placed",
             "items": items_to_checkout
@@ -277,19 +288,21 @@ async def place_order(request: Request):
         collection_orders.insert_one(order)
 
         # delete items from food-cart after placing order.
-        collection_food_cart.delete_many({"email": email, "restaurant_id": restaurant_id})
+        collection_food_cart.delete_many({"email": order_details.email, "restaurant_id": order_details.restaurant_id})
 
         # fetch the mongodb auto generated unique _id for each order from the 'Orders' collection against a given email.
-        order_id = list(collection_orders.find({"email": email}, {"_id": 1}))
+        order_id = list(collection_orders.find({"email": order_details.email}, {"_id": 1}))
         # insert the newly placed order's _id into the list of orders placed from current account.
         account_details = {
-            "first_name": first_name, "last_name" : last_name, "email": email, "contact": contact, "address": address,
-            "unit_suite": unit_suite, "zip_code": zip_code, "card_number": card_number, "exp_month": exp_month,
-            "exp_year": exp_year, "cvc": cvc, "order_id": order_id
+            "first_name": order_details.first_name, "last_name" : order_details.last_name, "email": order_details.email,
+            "contact": order_details.contact, "address": order_details.address,
+            "unit_suite": order_details.unit_suite, "zip_code": order_details.zip_code, "card_number": order_details.card_number,
+            "exp_month": order_details.exp_month,
+            "exp_year": order_details.exp_year, "cvc": order_details.cvc, "order_id": order_id
         }
 
         # check if a record for the given email id exists in "Accounts" collections in mongoDB.
-        account_exist = collection_account_info.find_one({"email": email})
+        account_exist = collection_account_info.find_one({"email": order_details.email})
 
         # if accounts collection does not have an existing record for given email, create a new record.
         # if account exists, add order_id to array containing the list of all orders placed through given email id.
@@ -309,7 +322,7 @@ async def place_order(request: Request):
                                                    "items_to_checkout": items_to_checkout, "total_amount": total_amount,
                                                    "restaurant_zipcode": restaurant_zipcode['zip_code'], "error": e.error.message,
                                                    "first_name":first_name, "last_name": last_name, "email": email,
-                                                   "contact": contact})
+                                                   "contact": order_details.contact})
     # if payment is successful, redirect user to view-my-orders page.
     return RedirectResponse(url="/view-my-orders", status_code=303)
 
@@ -353,26 +366,45 @@ async def get_my_orders(request: Request):
                                              "first_name": first_name, "current_account_placed_orders": current_account_placed_orders})
 
 
-async def _helper_get_inputs(request):
+async def _helper_get_inputs(request, restaurant_id, restaurant_name, first_name, last_name,
+                                                       email, contact, address, unit_suite, zip_code,
+                                                       card_number, exp_month, exp_year, cvc, total_amount):
     """
        Gets user inputted data from place-order page.
    """
-    form_data = await request.form()
-    restaurant_id = int(form_data.get("restaurant_id"))
-    restaurant_name = form_data.get("restaurant_name")
-    first_name = form_data.get("first_name")
-    last_name = form_data.get("last_name")
-    email = form_data.get("email")
-    contact = form_data.get("contact")
-    address = form_data.get("address")
-    unit_suite = form_data.get("unit_suite")
-    zip_code = form_data.get("zip_code")
-    card_number = form_data.get("card_number")
-    exp_month = form_data.get("exp_month")
-    exp_year = form_data.get("exp_year")
-    cvc = form_data.get("cvc")
-    total_amount = float(form_data.get("total_amount"))
-    return address, card_number, contact, cvc, email, exp_month, exp_year, first_name, last_name, restaurant_id, restaurant_name, total_amount, unit_suite, zip_code
+    # form_data = await request.form()
+    # restaurant_id = int(form_data.get("restaurant_id"))
+    # restaurant_name = form_data.get("restaurant_name")
+    # first_name = form_data.get("first_name")
+    # last_name = form_data.get("last_name")
+    # email = form_data.get("email")
+    # contact = form_data.get("contact")
+    # address = form_data.get("address")
+    # unit_suite = form_data.get("unit_suite")
+    # zip_code = form_data.get("zip_code")
+    # card_number = form_data.get("card_number")
+    # exp_month = form_data.get("exp_month")
+    # exp_year = form_data.get("exp_year")
+    # cvc = form_data.get("cvc")
+    # total_amount = float(form_data.get("total_amount"))
+
+    order_details = OrderDetails(
+        restaurant_id=restaurant_id,
+        restaurant_name=restaurant_name,
+        first_name=first_name,
+        last_name=last_name,
+        email=email,
+        contact=contact,
+        address=address,
+        unit_suite=unit_suite,
+        zip_code=zip_code,
+        card_number=card_number,
+        exp_month=exp_month,
+        exp_year=exp_year,
+        cvc=cvc,
+        total_amount=total_amount
+    )
+    return order_details
 
 
 

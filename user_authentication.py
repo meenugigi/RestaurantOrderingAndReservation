@@ -1,4 +1,6 @@
 import manage_imports
+
+
 from manage_imports import *
 
 
@@ -41,24 +43,23 @@ async def logout(request: Request):
        Clears all session data for an user when user logs out.
        Redirects to default page upon logout.
    """
-    request.session.pop("first_name", None)
-    request.session.pop("last_name", None)
-    request.session.pop("email", None)
-    request.session.pop("contact", None)
+    request.session.pop("user", None)
     return RedirectResponse(url="/", status_code=303)
 
 
-async def validate_login(request: Request):
+async def validate_login(request: Request, username: str = Form(...), password: str = Form(...)):
     """
-       Validates log-in credentials when user attempts to log in.
+       Validates log-in credentials when user attempts to log in. On attempting to log in, queries mongoDB
+       collection to verify if username exists. If yes, fetches username and corresponding password.
+       Matches the password and username with the data in the 'Accounts' collection in mongoDB.
        Upon successful validation, stores user data in session and redirects user to default home page.
        If login unsuccessful, throws an error and stays on log in page.
    """
-    form_data = await request.form()
-    username = form_data.get("username")
-    password = form_data.get("password")
-
-    user_data_session = request.session['user']
+    # validate data against basemodel.
+    user = UserLogin(
+        username=username,
+        password=password
+    )
     user = collection_account_info.find_one({"username": username})
     if user and pwd_context.verify(password, user['password']):
         user_data = {
@@ -71,7 +72,6 @@ async def validate_login(request: Request):
             "zip_code": user['zip_code']
         }
         request.session['user'] = user_data
-        print("user_data_session", user_data_session.get("first_name"))
 
         return RedirectResponse(url="/", status_code=303)
     return templates.TemplateResponse("login.html", {"request": request, "service_name": "FlavorFusion",
@@ -79,27 +79,34 @@ async def validate_login(request: Request):
 
 
 
-async def validate_signup(request: Request):
+async def validate_signup(request: Request, first_name: str = Form(...), last_name: str = Form(...),
+                          username: str = Form(...), password: str = Form(...), email: str = Form(...),
+                          contact: str = Form(...), address: str = Form(...), unit_suite: str = Form(...),
+                          zip_code: str = Form(...)):
     """
        Takes all inputs obtained from the sign-up form on attempting to submit.
        Inserts data into 'Accounts' collection on mongoDB. Stores password in encrypted format.
        Saves data in session. Redirects user to default home page.
    """
-    form_data = await request.form()
-    first_name = form_data.get("first_name")
-    last_name = form_data.get("last_name")
-    username = form_data.get("username")
-    password = form_data.get("password")
-    email = form_data.get("email")
-    contact = form_data.get("contact")
-    address = form_data.get("address")
-    unit_suite = form_data.get("unit_suite")
-    zip_code = form_data.get("zip_code")
+    print("==------ ", username, password, type(username), type(password))
+    # validate data against basemodel
+    user = User(
+        first_name=first_name,
+        last_name=last_name,
+        username=username,
+        password=password,
+        email=email,
+        contact=contact,
+        address=address,
+        unit_suite=unit_suite,
+        zip_code=zip_code
+    )
     encrypted_password = pwd_context.hash(password)
 
     collection_account_info.insert_one({"first_name": first_name, "last_name": last_name, "username": username,
                                          "password": encrypted_password, "email": email, "contact": contact, "address": address,
                                          "unit_suite": unit_suite, "zip_code": zip_code})
+    # create a dictionary for each user to store user related data in session.
     user_data = {
         "first_name": first_name,
         "last_name": last_name,
@@ -111,8 +118,6 @@ async def validate_signup(request: Request):
     }
     request.session['user'] = user_data
     # request.session['first_name'] = first_name
-    # request.session['last_name'] = last_name
-    # request.session['email'] = email
-    # request.session['contact'] = contact
+
     return RedirectResponse(url="/", status_code=303)
 

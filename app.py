@@ -21,6 +21,10 @@ class OrderItem(BaseModel):
     item_id: int
     quantity: int
 
+# class SearchInput(BaseModel):
+#     search_input: str
+
+
 
 # Set up session middleware
 app.add_middleware(SessionMiddleware, secret_key=SECRET_KEY)
@@ -85,28 +89,34 @@ async def logout(request: Request):
 
 
 @app.post("/validate-login")
-async def validate_login(request: Request):
+async def validate_login(request: Request, username: str = Form(...), password: str = Form(...)):
     """
-       Validates log-in credentials when user attempts to log in.
+       Validates log-in credentials when user attempts to log in. On attempting to log in, queries mongoDB
+       collection to verify if username exists. If yes, fetches username and corresponding password.
+       Matches the password and username with the data in the 'Accounts' collection in mongoDB.
        Upon successful validation, stores user data in session and redirects user to default home page.
        If login unsuccessful, throws an error and stays on log in page.
    """
     try:
-        response = await user_authentication.validate_login(request)
+        response = await user_authentication.validate_login(request, username, password)
         return response
     except Exception as e:
         print("Failure on Validate-Login-Page ", e)
 
 
 @app.post("/submit-form")
-async def validate_signup(request: Request):
+async def validate_signup(request: Request, first_name: str = Form(...), last_name: str = Form(...),
+                          username: str = Form(...), password: str = Form(...), email: str = Form(...),
+                          contact: str = Form(...), address: str = Form(...), unit_suite: str = Form(...),
+                          zip_code: str = Form(...)):
     """
        Takes all inputs obtained from the sign-up form on attempting to submit.
        Inserts data into 'Accounts' collection on mongoDB. Stores password in encrypted format.
        Saves data in session. Redirects user to default home page.
    """
     try:
-        response = await user_authentication.validate_signup(request)
+        response = await user_authentication.validate_signup(request, first_name, last_name, username, password, email,
+                                                         contact, address, unit_suite, zip_code)
         return response
     except Exception as e:
         print("Failure on Validate-Signup-Page ", e)
@@ -126,13 +136,13 @@ async def get_restaurants(request: Request):
 
 
 @app.post('/get-menu')
-async def get_menu(request: Request):
+async def get_menu(request: Request, restaurant_id: int = Form(...)):
     """
        Fetches the list of menu items from the 'Menu' collection in mongoDB against the requested restaurant id.
        Groups the menu items by category attribute.
    """
     try:
-        response = await restaurant_orders.get_menu(request)
+        response = await restaurant_orders.get_menu(request, restaurant_id)
         return response
     except Exception as e:
         print("Failure on Get-Menu-Page ", e)
@@ -212,7 +222,7 @@ async def increase_item_quantity_cart(request: Request):
        Updates are made in 'Food-Cart' collection on mongoDB.
    """
     try:
-        response = await restaurant_orders.get_cart_items(increase_item_quantity_cart)
+        response = await restaurant_orders.increase_item_quantity_cart(request)
         return response
     except Exception as e:
         print("Failure on Increase-Item-From-Cart-Functionality ", e)
@@ -233,7 +243,11 @@ async def order_checkout(request: Request):
 
 
 @app.post("/place-order")
-async def place_order(request: Request):
+async def place_order(request: Request, restaurant_id: int = Form(...), restaurant_name: str = Form(...),
+                      first_name: str = Form(...), last_name: str = Form(...), email: EmailStr = Form(...),
+                      contact: str = Form(...), address: str = Form(...), unit_suite: str = Form(...),
+                      zip_code: str = Form(...), card_number: str = Form(...), exp_month: str = Form(...),
+                      exp_year: str = Form(...), cvc: str = Form(...), total_amount: float = Form(...)):
     """
        Autofills data on place-order page for input fields using stored session data.
        Displays the details of items being checked out along with price and quantity details.
@@ -250,7 +264,9 @@ async def place_order(request: Request):
        If payment or database updates were unsuccessful, throw error message and stay on the same place-order page.
    """
     try:
-        response = await restaurant_orders.place_order(request)
+        response = await restaurant_orders.place_order(request, restaurant_id, restaurant_name, first_name, last_name,
+                                                       email, contact, address, unit_suite, zip_code, card_number,
+                                                       exp_month, exp_year, cvc, total_amount)
         return response
     except Exception as e:
         print("Failure on Place-Order-Page ", e)
