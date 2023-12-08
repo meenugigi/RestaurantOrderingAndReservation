@@ -206,9 +206,6 @@ async def increase_item_quantity_cart(request: Request, item_id: str = Form(...)
 
 
 
-
-
-
 async def order_checkout(request: Request, restaurant_id: int = Form(...), restaurant_name: str = Form(...)):
     """
        Directs user to order checkout page on clicking 'Checkout' button on menu page.

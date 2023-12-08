@@ -69,10 +69,6 @@ async def _helper_get_available_slots(available_reservation_slots, get_all_reser
             available_reservation_slots.append(list(reservation.keys()))
             reservation_slot_ids.append(reservation['_id'])
     print("capacity:", restaurant_capacity)
-
-    for r in get_all_reservations:
-        print("------- ", r)
-
         # logic to display time slots greater than current time only. change min_date to today's date.
         # start_time = slot[0].split("-")
         # if((current_time < datetime.strptime(start_time[0].strip(), "%I:%M %p"))):
