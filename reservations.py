@@ -5,7 +5,7 @@ from manage_imports import *
 client = Client(twilio_acoount_sid, twilio_auth_token)
 
 
-async def make_reservation(request: Request):
+async def make_reservation(request: Request, restaurant_id: int = Form(...)):
     """
         Functionality that allows users to make reservations. Allows users to reverse restaurant tables for next day.
         First fetches all the reservations for a given restaurant. Then fetches restaurant capacity.
@@ -17,8 +17,9 @@ async def make_reservation(request: Request):
     last_name = user.get("last_name")
     email = user.get("email")
     contact =  user.get("contact")
-    form_data = await request.form()
-    restaurant_id = int(form_data.get("restaurant_id"))
+    RestaurantID(
+        restaurant_id=restaurant_id
+    )
     reservation_slot_ids = []
     available_reservation_slots = []
 
@@ -152,13 +153,14 @@ async def show_reservations(request: Request):
 
 
 
-async def cancel_reservation(request: Request):
+async def cancel_reservation(request: Request, reservation_id: str = Form(...)):
     """
         Fetches the reservation_id of the reservation that needs to be cancelled.
         Removes the reservation from mongoDB.
    """
-    form_data = await request.form()
-    reservation_id = form_data.get("reservation_id")
+    ReservationID(
+        reservation_id=reservation_id
+    )
 
     collection_reservations.delete_one({'_id': ObjectId(reservation_id)})
 

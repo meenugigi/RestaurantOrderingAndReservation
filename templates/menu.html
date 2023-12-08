@@ -67,8 +67,8 @@
         <input type="hidden" class="restaurant_name" name="restaurant_name" id="restaurant_name" value="{{ restaurant_name }}">
         <input type="hidden" class="restaurant_id" name="restaurant_id" id="restaurant_id" value="{{ restaurant_id }}">
         <input type="hidden" class="restaurant_object_id" name="restaurant_object_id" id="restaurant_object_id" value="{{ restaurant_object_id }}">
-        <input type="hidden" class="item-name" name="item-name" id="item-name" >
-        <input type="hidden" class="item-price" name="item-price" id="item-price" >
+        <input type="hidden" class="item_name" name="item_name" id="item_name" >
+        <input type="hidden" class="item_price" name="item_price" id="item_price" >
     </form>
     </div>
 
@@ -110,7 +110,7 @@ function displayCartItems(restaurant_id) {
                 // Generate HTML for each item card
                 var itemCard = `
                     <div class="cart-item-card">
-                        <div class="cart-item-name">${item.item_name}</div>
+                        <div class="cart-item_name">${item.item_name}</div>
                         <div class="cart-item-details">
                         <form class="delete-from-cart-form" id="delete-from-cart-form" method="POST" action="/delete-from-cart">
                             <div class="price">
@@ -228,8 +228,8 @@ function increaseItemQuantityInCart(itemid){
 
 // Function to add an item to shopping cart
 function addToCart(name, price) {
-    document.getElementById('item-name').value = name;
-    document.getElementById('item-price').value = price;
+    document.getElementById('item_name').value = name;
+    document.getElementById('item_price').value = price;
 
     var formData = $('#menu-form').serialize();
     var params = new URLSearchParams(formData);

@@ -148,7 +148,8 @@ async def get_menu(request: Request, restaurant_id: int = Form(...)):
         print("Failure on Get-Menu-Page ", e)
 
 @app.post("/add-to-cart")
-async def add_to_cart(request: Request):
+async def add_to_cart(request: Request, restaurant_id: int = Form(...), restaurant_name: str = Form(...),
+                      item_name: str = Form(...), item_price: str = Form(...)):
     """
        Adds the requested item to cart on clicking the 'Add' button on UI.
        Inserts the item into 'Food-Cart' collection on mongoDB.
@@ -156,79 +157,79 @@ async def add_to_cart(request: Request):
        against the same item in the 'Food-Cart' collection in mongoDB.
    """
     try:
-        response = await restaurant_orders.add_to_cart(request)
+        response = await restaurant_orders.add_to_cart(request, restaurant_id, restaurant_name, item_name, item_price)
         return response
     except Exception as e:
         print("Failure on Add-To-Cart-Page ", e)
 
 
 @app.post("/get-cart-items")
-async def get_cart_items(request: Request):
+async def get_cart_items(request: Request, restaurant_id: int = Form(...)):
     """
        Fetches cart items from 'Food-Cart' collection in mongoDB against the requested restaurant id.
        Displays cart items on menu page when user adds item to cart.
    """
     try:
-        response = await restaurant_orders.get_cart_items(request)
+        response = await restaurant_orders.get_cart_items(request, restaurant_id)
         return response
     except Exception as e:
         print("Failure on Get-Cart-Items-Functionality ", e)
 
 
 @app.post("/calculate-checkout-amount")
-async def calculate_checkout_amount(request: Request):
+async def calculate_checkout_amount(request: Request, restaurant_id: int = Form(...)):
     """
        Calculates total checkout amount for all items added to cart for a specific restaurant id.
        The total amount is displayed on the menu page.
    """
     try:
-        response = await restaurant_orders.calculate_checkout_amount(request)
+        response = await restaurant_orders.calculate_checkout_amount(request, restaurant_id)
         return response
     except Exception as e:
         print("Failure on Calculate-Checkout-Amount-Functionality ", e)
 
 
 @app.post("/delete-from-cart")
-async def delete_from_cart(request: Request):
+async def delete_from_cart(request: Request, item_id: str = Form(...)):
     """
        Functionality to delete an item from cart on clicking the 'delete icon' on UI.
        Removes the item from 'Food-Cart' collection in mongoDB.
    """
     try:
-        response = await restaurant_orders.delete_from_cart(request)
+        response = await restaurant_orders.delete_from_cart(request, item_id)
         return response
     except Exception as e:
         print("Failure on Delete-From-Cart-Functionality ", e)
 
 
 @app.post("/decrease-item-quantity-cart")
-async def reduce_item_quantity_cart(request: Request):
+async def reduce_item_quantity_cart(request: Request, item_id: str = Form(...)):
     """
        Functionality to decrease item quantity by 1 if quantity > 1 on clicking 'minus icon' on UI.
        If quantity == 1, deletes item from cart.
        Updates are made in 'Food-Cart' collection on mongoDB.
    """
     try:
-        response = await restaurant_orders.reduce_item_quantity_cart(request)
+        response = await restaurant_orders.reduce_item_quantity_cart(request, item_id)
         return response
     except Exception as e:
         print("Failure on Reduce-Item-From-Cart-Functionality ", e)
 
 
 @app.post("/increase-item-quantity-cart")
-async def increase_item_quantity_cart(request: Request):
+async def increase_item_quantity_cart(request: Request, item_id: str = Form(...)):
     """
        Functionality to increase item quantity by 1 on clicking the 'plus icon' on UI.
        Updates are made in 'Food-Cart' collection on mongoDB.
    """
     try:
-        response = await restaurant_orders.increase_item_quantity_cart(request)
+        response = await restaurant_orders.increase_item_quantity_cart(request, item_id)
         return response
     except Exception as e:
         print("Failure on Increase-Item-From-Cart-Functionality ", e)
 
 @app.post("/order-checkout")
-async def order_checkout(request: Request):
+async def order_checkout(request: Request, restaurant_id: int = Form(...), restaurant_name: str = Form(...)):
     """
        Directs user to order checkout page on clicking 'Checkout' button on menu page.
        Fetches stored session data for logged in user and autofills input fields on place-order page.
@@ -236,7 +237,7 @@ async def order_checkout(request: Request):
        Displays fields to enter personal details, address and payment details.
    """
     try:
-        response = await restaurant_orders.order_checkout(request)
+        response = await restaurant_orders.order_checkout(request, restaurant_id, restaurant_name)
         return response
     except Exception as e:
         print("Failure on Order-Checkout-Page ", e)
@@ -290,7 +291,7 @@ async def get_my_orders(request: Request):
 
 
 @app.post("/make_reservation")
-async def make_reservation(request: Request):
+async def make_reservation(request: Request, restaurant_id: int = Form(...)):
     """
         Functionality that allows users to make reservations. Allows users to reverse restaurant tables for next day.
         First fetches all the reservations for a given restaurant. Then fetches restaurant capacity.
@@ -299,7 +300,7 @@ async def make_reservation(request: Request):
         If yes, then displays that slot on dropdown and is available to reserve.
    """
     try:
-        response = await reservations.make_reservation(request)
+        response = await reservations.make_reservation(request, restaurant_id)
         return response
     except Exception as e:
         print("Failure on Make-Reservation-Page ", e)
@@ -335,13 +336,13 @@ async def show_reservations(request: Request):
 
 
 @app.post("/cancel-reservation")
-async def cancel_reservation(request: Request):
+async def cancel_reservation(request: Request, reservation_id: str = Form(...)):
     """
         Fetches the reservation_id of the reservation that needs to be cancelled.
         Removes the reservation from mongoDB.
    """
     try:
-        response = await reservations.cancel_reservation(request)
+        response = await reservations.cancel_reservation(request, reservation_id)
         return response
     except Exception as e:
         print("Failure on Cancel-Reservations-Functionality ", e)

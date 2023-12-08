@@ -5,6 +5,8 @@ async def get_restaurants(request: Request):
     """
        Fetches user-firstname from session data. Takes a restaurant name/ zip/ address location string from the
        search bar and returns list of restaurants from 'Restaurants' collection in mongoDB for that specific location.
+       We fetch 'id' from restaurants collection and not the mongoDB generated '_id" since 'id' from 'Restaurant'
+       collection serves as the foreign key to Menu collection.
    """
     form_data = await request.form()
     first_name = request.session['user'].get("first_name")
@@ -31,11 +33,9 @@ async def get_menu(request: Request, restaurant_id: int = Form(...)):
        Fetches the list of menu items from the 'Menu' collection in mongoDB against the requested restaurant id.
        Groups the menu items by category attribute.
    """
-    # form_data = await request.form()
-    restaurant_details = RestaurantID(
+    RestaurantID(
         restaurant_id=restaurant_id
     )
-    # restaurant_id = int(form_data.get('restaurant_id'))
     restaurant_name = collection_restaurant.find_one({"id": restaurant_id}, {"name": 1})
     first_name = request.session['user'].get("first_name")
     # create pipeline to get menu items from menu collection for the respective restaurant id.
@@ -58,18 +58,21 @@ async def get_menu(request: Request, restaurant_id: int = Form(...)):
 
 
 
-async def add_to_cart(request: Request):
+async def add_to_cart(request: Request, restaurant_id: int = Form(...), restaurant_name: str = Form(...),
+                      item_name: str = Form(...), item_price: str = Form(...)):
     """
        Adds the requested item to cart on clicking the 'Add' button on UI.
        Inserts the item into 'Food-Cart' collection on mongoDB.
        Re-clicking 'Add' button against previously added item, increases quantity by 1 and updates the quantity
        against the same item in the 'Food-Cart' collection in mongoDB.
    """
-    form_data = await request.form()
-    item_name = form_data.get("item-name")
-    item_price = form_data.get("item-price")
-    restaurant_name = form_data.get("restaurant_name")
-    restaurant_id = int(form_data.get('restaurant_id'))
+    ItemDetails(
+        restaurant_id=restaurant_id,
+        restaurant_name=restaurant_name,
+        item_name=item_name,
+        item_price=item_price
+    )
+
     email = request.session['user'].get("email")
 
     existing_item = collection_food_cart.find_one({
@@ -94,13 +97,14 @@ async def add_to_cart(request: Request):
 
 
 
-async def get_cart_items(request: Request):
+async def get_cart_items(request: Request, restaurant_id: int = Form(...)):
     """
        Fetches cart items from 'Food-Cart' collection in mongoDB against the requested restaurant id.
        Displays cart items on menu page when user adds item to cart.
    """
-    form_data = await request.form()
-    restaurant_id = int(form_data.get("restaurant_id"))
+    RestaurantID(
+        restaurant_id=restaurant_id
+    )
     email = request.session['user'].get("email")
     try:
         # Retrieve cart items for the given restaurant_id from MongoDB
@@ -115,13 +119,14 @@ async def get_cart_items(request: Request):
 
 
 
-async def calculate_checkout_amount(request: Request):
+async def calculate_checkout_amount(request: Request, restaurant_id: int = Form(...)):
     """
        Calculates total checkout amount for all items added to cart for a specific restaurant id.
        The total amount is displayed on the menu page.
    """
-    form_data = await request.form()
-    restaurant_id = int(form_data.get("restaurant_id"))
+    RestaurantID(
+        restaurant_id=restaurant_id
+    )
     try:
         # Retrieve cart items for the given restaurant_id from MongoDB
         cart_items = list(collection_food_cart.find({"restaurant_id": restaurant_id}))
@@ -139,27 +144,29 @@ async def calculate_checkout_amount(request: Request):
 
 
 
-async def delete_from_cart(request: Request):
+async def delete_from_cart(request: Request, item_id: str = Form(...)):
     """
        Functionality to delete an item from cart on clicking the 'delete icon' on UI.
        Removes the item from 'Food-Cart' collection in mongoDB.
    """
-    form_data = await request.form()
-    item_id = form_data.get("item_id")
+    ItemId(
+        item_id=item_id
+    )
     collection_food_cart.delete_one({'_id': ObjectId(item_id)})
     # print("item_id: ", item_id)
     return {"form data", item_id}
 
 
 
-async def reduce_item_quantity_cart(request: Request):
+async def reduce_item_quantity_cart(request: Request, item_id: str = Form(...)):
     """
        Functionality to decrease item quantity by 1 if quantity > 1 on clicking 'minus icon' on UI.
        If quantity == 1, deletes item from cart.
        Updates are made in 'Food-Cart' collection on mongoDB.
    """
-    form_data = await request.form()
-    item_id = form_data.get("item_id")
+    ItemId(
+        item_id=item_id
+    )
     item_detail = collection_food_cart.find_one({"_id": ObjectId(item_id)})
     if item_detail:
         item_quantity = item_detail.get("quantity")
@@ -173,19 +180,19 @@ async def reduce_item_quantity_cart(request: Request):
             })
         # if quantity == 1, delete item from cart.
         elif item_quantity == 1:
-            await delete_from_cart(request)
+            await delete_from_cart(request, item_id)
     return ({"quantity: ", item_quantity})
 
 
 
-async def increase_item_quantity_cart(request: Request):
+async def increase_item_quantity_cart(request: Request, item_id: str = Form(...)):
     """
        Functionality to increase item quantity by 1 on clicking the 'plus icon' on UI.
        Updates are made in 'Food-Cart' collection on mongoDB.
    """
-    form_data = await request.form()
-    item_id = form_data.get("item_id")
-    print("item id: ", item_id)
+    ItemId(
+        item_id=item_id
+    )
     item_detail = collection_food_cart.find_one({"_id": ObjectId(item_id)})
     if item_detail:
         collection_food_cart.update_one({
@@ -202,25 +209,29 @@ async def increase_item_quantity_cart(request: Request):
 
 
 
-async def order_checkout(request: Request):
+async def order_checkout(request: Request, restaurant_id: int = Form(...), restaurant_name: str = Form(...)):
     """
        Directs user to order checkout page on clicking 'Checkout' button on menu page.
        Fetches stored session data for logged in user and autofills input fields on place-order page.
        Displays the details of the items to checkout along with price and quantity.
        Displays fields to enter personal details, address and payment details.
    """
-    form_data = await request.form()
     first_name = request.session['user'].get("first_name")
     last_name = request.session['user'].get("last_name")
     email = request.session['user'].get("email")
     contact = request.session['user'].get("contact")
-    restaurant_name = form_data.get("restaurant_name")
-    restaurant_id = int(form_data.get("restaurant_id"))
+
+    RestaurantID(
+        restaurant_id=restaurant_id
+    )
+    RestaurantName(
+        restaurant_name=restaurant_name
+    )
 
     restaurant_zipcode = collection_restaurant.find_one({"id": restaurant_id}, {"zip_code": 1})
     items_to_checkout = list(collection_food_cart.find({"restaurant_id": restaurant_id}))
 
-    total_amount = await calculate_checkout_amount(request)
+    total_amount = await calculate_checkout_amount(request, restaurant_id)
 
     return templates.TemplateResponse("order_checkout.html", {"request": request,"service_name": "FlavorFusion",
                                                    "restaurant_name": restaurant_name, "restaurant_id": restaurant_id,
@@ -256,10 +267,10 @@ async def place_order(request: Request, restaurant_id: int = Form(...), restaura
                                              contact, address, unit_suite, zip_code, card_number, exp_month, exp_year,
                                              cvc, total_amount)
 
-    first_name = request.session['user'].get("first_name")
-    last_name = request.session['user'].get("last_name")
-    email = request.session['user'].get("email")
-    contact = request.session['user'].get("contact")
+    session_first_name = request.session['user'].get("first_name")
+    session_last_name = request.session['user'].get("last_name")
+    session_email = request.session['user'].get("email")
+    session_contact = request.session['user'].get("contact")
 
     # fetching zipcode to auto fill zipcode input field on form on checkout page.
     restaurant_zipcode = collection_restaurant.find_one({"id": order_details.restaurant_id}, {"zip_code": 1})
@@ -294,10 +305,9 @@ async def place_order(request: Request, restaurant_id: int = Form(...), restaura
         order_id = list(collection_orders.find({"email": order_details.email}, {"_id": 1}))
         # insert the newly placed order's _id into the list of orders placed from current account.
         account_details = {
-            "first_name": order_details.first_name, "last_name" : order_details.last_name, "email": order_details.email,
-            "contact": order_details.contact, "address": order_details.address,
-            "unit_suite": order_details.unit_suite, "zip_code": order_details.zip_code, "card_number": order_details.card_number,
-            "exp_month": order_details.exp_month,
+            "first_name": order_details.first_name, "last_name": order_details.last_name, "email": order_details.email,
+            "contact": order_details.contact, "address": order_details.address, "unit_suite": order_details.unit_suite,
+            "zip_code": order_details.zip_code, "card_number": order_details.card_number, "exp_month": order_details.exp_month,
             "exp_year": order_details.exp_year, "cvc": order_details.cvc, "order_id": order_id
         }
 
@@ -321,8 +331,8 @@ async def place_order(request: Request, restaurant_id: int = Form(...), restaura
                                                    "restaurant_name": restaurant_name, "restaurant_id": restaurant_id,
                                                    "items_to_checkout": items_to_checkout, "total_amount": total_amount,
                                                    "restaurant_zipcode": restaurant_zipcode['zip_code'], "error": e.error.message,
-                                                   "first_name":first_name, "last_name": last_name, "email": email,
-                                                   "contact": order_details.contact})
+                                                   "first_name": session_first_name, "last_name": session_last_name, "email": session_email,
+                                                   "contact": session_contact})
     # if payment is successful, redirect user to view-my-orders page.
     return RedirectResponse(url="/view-my-orders", status_code=303)
 
@@ -366,27 +376,11 @@ async def get_my_orders(request: Request):
                                              "first_name": first_name, "current_account_placed_orders": current_account_placed_orders})
 
 
-async def _helper_get_inputs(request, restaurant_id, restaurant_name, first_name, last_name,
-                                                       email, contact, address, unit_suite, zip_code,
-                                                       card_number, exp_month, exp_year, cvc, total_amount):
+async def _helper_get_inputs(request, restaurant_id, restaurant_name, first_name, last_name, email, contact, address,
+                             unit_suite, zip_code, card_number, exp_month, exp_year, cvc, total_amount):
     """
        Gets user inputted data from place-order page.
    """
-    # form_data = await request.form()
-    # restaurant_id = int(form_data.get("restaurant_id"))
-    # restaurant_name = form_data.get("restaurant_name")
-    # first_name = form_data.get("first_name")
-    # last_name = form_data.get("last_name")
-    # email = form_data.get("email")
-    # contact = form_data.get("contact")
-    # address = form_data.get("address")
-    # unit_suite = form_data.get("unit_suite")
-    # zip_code = form_data.get("zip_code")
-    # card_number = form_data.get("card_number")
-    # exp_month = form_data.get("exp_month")
-    # exp_year = form_data.get("exp_year")
-    # cvc = form_data.get("cvc")
-    # total_amount = float(form_data.get("total_amount"))
 
     order_details = OrderDetails(
         restaurant_id=restaurant_id,
