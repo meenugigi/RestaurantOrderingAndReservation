@@ -5,19 +5,14 @@
     background-image: url('../images/restaurants-page-wallpaper.jpg');
 }
 
-.signup-page-header {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-}
-
+/* rows containing 2 input fields on same row */
 .form-format{
     display: flex;
     gap: 60px;
     padding: 0 14%;
 }
 
+/* container holding the form below the page header */
 .inner-container {
     width: 50%;
     margin: 50px auto;
@@ -27,16 +22,19 @@
 
 }
 
+/* each individual input field on form */
 .form-group {
     margin-bottom: 20px;
 }
 
+/* label for each form fields */
 label {
     display: block;
     margin-bottom: 5px;
     font-weight: bold;
 }
 
+/* attributes for each input field types */
 input[type="text"], input[type="email"], input[type="tel"], input[type="password"], select {
     width: 100%;
     padding: 6%;
@@ -45,10 +43,12 @@ input[type="text"], input[type="email"], input[type="tel"], input[type="password
     border: 1px solid #ccc;
 }
 
+/* Sign up button container */
 .signup-button-container{
     margin-left: 45%;
 }
 
+/* sign up button */
 .signup-button{
     font-size: 16px;
 }

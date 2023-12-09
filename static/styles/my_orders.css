@@ -1,13 +1,6 @@
 @import url("parent.css");
 
 
-.my-orders-page-body{
-    background-image: url('../images/menu-page-wallpaper.jpg');
-    color: white;
-}
-
-
-
 /* page header */
 .my-orders-page-header {
     display: flex;
@@ -22,7 +15,6 @@
     z-index: 1000;
 
 }
-
 
 
 /* Style the container for all orders */
@@ -71,22 +63,17 @@
     gap: 40px;
 }
 
+/* style item name and item price */
 .order-item p {
     margin: 5px 0;
     font-size: 14px;
 }
 
+/* display order date and order amount */
 .show-date-total-amount{
     font-size: 14px;
     text-align: right;
 }
-
-
-
-
-
-
-
 
 
 /* Styles for status display */

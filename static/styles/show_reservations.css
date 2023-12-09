@@ -1,24 +1,21 @@
 @import url("parent.css");
 
 
-.menu-page-body{
-    background-image: url('../images/menu-page-wallpaper.jpg');
-    color: white;
-}
-
-
+/* outer container holding all reservations */
 .reservations-container {
     display: grid;
     grid-gap: 30px;
     padding: 2% 10%;
 }
 
+/* each reservation container */
 .reservation {
     border: 1px solid #ccc;
     border-radius: 5px;
     padding: 1%;
 }
 
+/* container holding individual reservation information */
 .details {
     display: flex;
     flex-direction: column;
@@ -26,6 +23,7 @@
     padding: 2px 5%;
 }
 
+/* restaurant name within each reservation container */
 .restaurant-name {
     font-weight: bold;
     text-align: center;
@@ -33,6 +31,7 @@
     font-size: large;
 }
 
+/* line containing the reserved slot, date and contact details */
 .slot-date-contact {
     display: flex;
     justify-content: space-between;
@@ -41,24 +40,29 @@
     font-size: small;
 }
 
+/* left align slot reserved and date information */
 .slot-date {
     flex: 1;
 }
 
+/* right align contact information */
 .contact {
     margin-left: auto;
 }
 
+/* 'Cancel Reservation' button */
 .details > .button {
     width: 100%;
     background-color: #cc0000;
 }
 
+/* 'Cancel Reservation' button */
 .details > .button:hover {
     width: 100%;
     background-color: #800000;
 }
 
+/* label displaying 'Upcoming reservations...' text */
 .upcoming-reservations-label{
     font-size: 18px;
     padding: 0 5%;

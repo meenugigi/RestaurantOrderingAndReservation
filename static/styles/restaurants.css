@@ -6,6 +6,7 @@
     background-image: url('../images/restaurants-page-wallpaper.jpg');
 }
 
+/* each restaurant as card */
 button.card-button {
     width: 18%; /* Fixed width for all cards */
    padding: 3%;
@@ -23,8 +24,7 @@ button.card-button {
     color: white;
 }
 
-
-
+/* hover on clicking each restaurant card button */
 button.card-button:hover {
     border: 2px solid white;
     cursor: pointer;

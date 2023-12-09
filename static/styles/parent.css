@@ -25,6 +25,11 @@ body {
     color: white;
 }
 
+/* background wallpaper */
+.menu-page-body, .make-reservation-page-body, .my-orders-page-body, .show-reservations-page-body{
+    background-image: url('../images/menu-page-wallpaper.jpg');
+    color: white;
+}
 
 /* page header div on all web pages */
 .page-header, .header-inner-group {
