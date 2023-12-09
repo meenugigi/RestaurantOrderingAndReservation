@@ -1,0 +1,15 @@
+## How to run application?
+- Download dataset and unzip the csv files.
+- Clone project repository.
+- Open MongoDB and create the following collections.
+    - Restaurant
+    - Menu
+    - Account
+    - Food-Cart
+    - Orders
+    - Reservations
+- Load the restaurant.csv and restuarant-menu.csv file into thre respective collections.
+- Open project on Pycharm IDE.
+- Run 'clean_process_dataset.py' file to clean and pre-process datasets.
+- Open terminal on Pycharm.
+- Run 'uvicorn app:app --reload'.
