@@ -1,6 +1,10 @@
 # Restaurant Ordering and Reservation Web Application
 This project is a Python-based web application built with FastAPI, offering functionalities for restaurant ordering and reservation. It enables users to sign up, log in, search for restaurants, order food items, manage their cart, place orders, and reserve tables at restaurants.
 
+## Dataset used
+Uber Eats USA Restaurants and Menus: https://www.kaggle.com/datasets/ahmedshahriarsakib/uber-eats-usa-restaurants-menus/
+restaurants.csv 
+restaurant-menus.csv
 
 ## Functional Requirements
 
