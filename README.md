@@ -3,8 +3,8 @@ This project is a Python-based web application built with FastAPI, offering func
 
 ## Dataset used
 Uber Eats USA Restaurants and Menus: https://www.kaggle.com/datasets/ahmedshahriarsakib/uber-eats-usa-restaurants-menus/
-restaurants.csv 
-restaurant-menus.csv
+- restaurants.csv 
+- restaurant-menus.csv
 
 ## Functional Requirements
 
@@ -42,3 +42,19 @@ restaurant-menus.csv
 - **AJAX & jQuery:** For seamless and dynamic user experience
 - **Payment Integration:** Stripe API for secure payment transactions
 - **Communication Integration:** Twilio for text message notifications
+
+  ## How to run application?
+  - Download dataset and unzip the csv files.
+  - Clone project repository.
+  - Open MongoDB and create the following collections.
+      - Restaurant
+      - Menu
+      - Account
+      - Food-Cart
+      - Orders
+      - Reservations
+  - Load the restaurant.csv and restuarant-menu.csv file into thre respective collections.
+  - Open project on Pycharm IDE.
+  - Run 'clean_process_dataset.py' file to clean and pre-process datasets.
+  - Open terminal on Pycharm.
+  - Run 'uvicorn app:app --reload'.
