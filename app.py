@@ -348,7 +348,6 @@ async def cancel_reservation(request: Request, reservation_id: str = Form(...)):
         print("Failure on Cancel-Reservations-Functionality ", e)
 
 
-
 if __name__ == "__main__":
     print("To run this application, open terminal and run command 'uvicorn app:app --reload'.")
 
