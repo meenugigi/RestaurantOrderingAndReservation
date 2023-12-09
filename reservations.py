@@ -30,7 +30,6 @@ async def make_reservation(request: Request, restaurant_id: int = Form(...)):
     # call method to get only available slots
     await _helper_get_available_slots(available_reservation_slots, get_all_reservations, reservation_slot_ids, restaurant_id)
 
-
     available_to_reserve_slot_list = []
     for reservation, _id, slot in zip(get_all_reservations, reservation_slot_ids, available_reservation_slots):
         # to get only the actual key instead of the format 'dict_keys(['09:00 AM - 09:30 AM'])'
@@ -54,7 +53,6 @@ async def _helper_get_available_slots(available_reservation_slots, get_all_reser
    """
     # get_current_time = datetime.now().strftime("%I:%M %p")
     # current_time = datetime.strptime(get_current_time, "%I:%M %p")
-
     restaurant_capacity = collection_restaurant.find_one({"id": restaurant_id}, {"max_capacity": 1})
     # if the dict value for a slot < max capacity of restaurant, add that slot to available_reservation_slots list
     for reservation in get_all_reservations:
@@ -135,8 +133,6 @@ async def show_reservations(request: Request):
 
     for booking, name in zip(get_bookings, restaurant_names):
         booking['restaurant_name'] = name
-
-
     return templates.TemplateResponse("show_reservations.html", {"request": request, "user": user,
                                              "service_name": "FlavorFusion", "get_bookings": get_bookings})
 
