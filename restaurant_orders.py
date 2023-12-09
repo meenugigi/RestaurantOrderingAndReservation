@@ -9,7 +9,7 @@ async def get_restaurants(request: Request):
        collection serves as the foreign key to Menu collection.
    """
     form_data = await request.form()
-    first_name = request.session['user'].get("first_name")
+    user = request.session['user']
     # takes address, zipcode, restaurant name as input
     input = form_data["search-input"]
     # Query MongoDB to find restaurants where the full address contains the obtained input
@@ -23,7 +23,7 @@ async def get_restaurants(request: Request):
     }, {"id": 1, "name": 1}))
 
     return templates.TemplateResponse("restaurants.html", {"request": request,"service_name": "FlavorFusion",
-                                             "first_name": first_name, "matched_restaurants": matched_restaurants})
+                                      "user": user, "matched_restaurants": matched_restaurants})
 
 
 
@@ -37,6 +37,7 @@ async def get_menu(request: Request, restaurant_id: int = Form(...)):
         restaurant_id=restaurant_id
     )
     restaurant_name = collection_restaurant.find_one({"id": restaurant_id}, {"name": 1})
+    user = request.session['user']
     first_name = request.session['user'].get("first_name")
     # create pipeline to get menu items from menu collection for the respective restaurant id.
     pipeline = [
@@ -53,8 +54,8 @@ async def get_menu(request: Request, restaurant_id: int = Form(...)):
     # Perform the aggregation
     menu_category = list(collection_menu.aggregate(pipeline))
     return templates.TemplateResponse("menu.html", {"request": request,"service_name": "FlavorFusion",
-                                                   "restaurant_id": restaurant_id, "restaurant_name" : restaurant_name['name'],
-                                                     "menu_category": menu_category, "first_name": first_name})
+                                                   "restaurant_id": restaurant_id, "restaurant_name": restaurant_name['name'],
+                                                   "menu_category": menu_category, "first_name": first_name, "user": user})
 
 
 
@@ -73,7 +74,7 @@ async def add_to_cart(request: Request, restaurant_id: int = Form(...), restaura
         item_price=item_price
     )
 
-    email = request.session['user'].get("email")
+    user = request.session['user']
 
     existing_item = collection_food_cart.find_one({
         'restaurant_id': restaurant_id,
@@ -90,7 +91,7 @@ async def add_to_cart(request: Request, restaurant_id: int = Form(...), restaura
         })
     #     if item does not exist in collection, insert item details as new entry into collection.
     else:
-        collection_food_cart.insert_one({'email': email,
+        collection_food_cart.insert_one({'user': user,
             'restaurant_id': restaurant_id, 'restaurant_name': restaurant_name,
             'item_name': item_name, 'item_price': item_price, 'quantity': 1})
     return {"item name:", item_name}
@@ -105,10 +106,10 @@ async def get_cart_items(request: Request, restaurant_id: int = Form(...)):
     RestaurantID(
         restaurant_id=restaurant_id
     )
-    email = request.session['user'].get("email")
+
     try:
         # Retrieve cart items for the given restaurant_id from MongoDB
-        cart_items = list(collection_food_cart.find({"restaurant_id": restaurant_id, "email": email}))
+        cart_items = list(collection_food_cart.find({"restaurant_id": restaurant_id, "user.email": request.session['user'].get("email")}))
 
         # Convert ObjectId to string for each document
         for item in cart_items:
@@ -153,7 +154,6 @@ async def delete_from_cart(request: Request, item_id: str = Form(...)):
         item_id=item_id
     )
     collection_food_cart.delete_one({'_id': ObjectId(item_id)})
-    # print("item_id: ", item_id)
     return {"form data", item_id}
 
 
@@ -175,7 +175,7 @@ async def reduce_item_quantity_cart(request: Request, item_id: str = Form(...)):
             collection_food_cart.update_one({
                 "_id": item_detail["_id"]
             },
-    {
+            {
                 "$inc": {"quantity": -1}
             })
         # if quantity == 1, delete item from cart.
@@ -198,7 +198,7 @@ async def increase_item_quantity_cart(request: Request, item_id: str = Form(...)
         collection_food_cart.update_one({
             "_id": item_detail["_id"]
         },
-{
+        {
             "$inc": {"quantity": 1}
         })
     return ({"quantity: ", item_id})
@@ -213,10 +213,7 @@ async def order_checkout(request: Request, restaurant_id: int = Form(...), resta
        Displays the details of the items to checkout along with price and quantity.
        Displays fields to enter personal details, address and payment details.
    """
-    first_name = request.session['user'].get("first_name")
-    last_name = request.session['user'].get("last_name")
-    email = request.session['user'].get("email")
-    contact = request.session['user'].get("contact")
+    user = request.session['user']
 
     RestaurantID(
         restaurant_id=restaurant_id
@@ -231,10 +228,9 @@ async def order_checkout(request: Request, restaurant_id: int = Form(...), resta
     total_amount = await calculate_checkout_amount(request, restaurant_id)
 
     return templates.TemplateResponse("order_checkout.html", {"request": request,"service_name": "FlavorFusion",
-                                                   "restaurant_name": restaurant_name, "restaurant_id": restaurant_id,
-                                                   "items_to_checkout": items_to_checkout, "total_amount": total_amount,
-                                                   "first_name":first_name, "last_name": last_name, "email": email,
-                                                   "contact": contact, "restaurant_zipcode": restaurant_zipcode['zip_code']})
+                                      "restaurant_name": restaurant_name, "restaurant_id": restaurant_id,
+                                      "items_to_checkout": items_to_checkout, "total_amount": total_amount,
+                                     "restaurant_zipcode": restaurant_zipcode['zip_code'], "user": user})
 
 
 
@@ -263,11 +259,7 @@ async def place_order(request: Request, restaurant_id: int = Form(...), restaura
     order_details = await _helper_get_inputs(request, restaurant_id, restaurant_name, first_name, last_name, email,
                                              contact, address, unit_suite, zip_code, card_number, exp_month, exp_year,
                                              cvc, total_amount)
-
-    session_first_name = request.session['user'].get("first_name")
-    session_last_name = request.session['user'].get("last_name")
-    session_email = request.session['user'].get("email")
-    session_contact = request.session['user'].get("contact")
+    user = request.session['user']
 
     # fetching zipcode to auto fill zipcode input field on form on checkout page.
     restaurant_zipcode = collection_restaurant.find_one({"id": order_details.restaurant_id}, {"zip_code": 1})
@@ -325,11 +317,10 @@ async def place_order(request: Request, restaurant_id: int = Form(...), restaura
     # if payment fails, displays error and stay on place-order page.
     except stripe.error.CardError as e:
         return templates.TemplateResponse("order_checkout.html", {"request": request, "service_name": "FlavorFusion",
-                                                   "restaurant_name": restaurant_name, "restaurant_id": restaurant_id,
-                                                   "items_to_checkout": items_to_checkout, "total_amount": total_amount,
-                                                   "restaurant_zipcode": restaurant_zipcode['zip_code'], "error": e.error.message,
-                                                   "first_name": session_first_name, "last_name": session_last_name, "email": session_email,
-                                                   "contact": session_contact})
+                                          "restaurant_name": restaurant_name, "restaurant_id": restaurant_id,
+                                          "items_to_checkout": items_to_checkout, "total_amount": total_amount,
+                                          "restaurant_zipcode": restaurant_zipcode['zip_code'], "error": e.error.message,
+                                          "user": user})
     # if payment is successful, redirect user to view-my-orders page.
     return RedirectResponse(url="/view-my-orders", status_code=303)
 
@@ -345,12 +336,11 @@ async def get_my_orders(request: Request):
        store 'restaurant_name' to remove data redundancy in database.)
        Formats 'timestamp' value (eg: 2023-11-26T18:54:49.000+00:00 is formatted to display 2023-11-26 on the UI).
    """
-    first_name = request.session['user'].get("first_name")
-    email = request.session['user'].get("email")
+    user = request.session['user']
     restaurant_ids = []
     restaurant_names = []
     format_datetime = []
-    current_account_placed_orders = list(collection_orders.find({"email": email}))
+    current_account_placed_orders = list(collection_orders.find({"email": user.get("email")}))
 
     for order in current_account_placed_orders:
         restaurant_id = order.get('restaurant_id')
@@ -370,7 +360,7 @@ async def get_my_orders(request: Request):
         order['restaurant_name'] = name
         order['formatted_timestamp'] = order_date
     return templates.TemplateResponse("my_orders.html", {"request": request, "service_name": "FlavorFusion",
-                                             "first_name": first_name, "current_account_placed_orders": current_account_placed_orders})
+                                             "user": user, "current_account_placed_orders": current_account_placed_orders})
 
 
 async def _helper_get_inputs(request, restaurant_id, restaurant_name, first_name, last_name, email, contact, address,

@@ -18,8 +18,8 @@
                     <input class="button" type="submit" formaction="/get-restaurants" value="Search">
                 </div>
             </form>
-                {% if first_name %}
-                    <div class="welcome-user">Hi, {{ first_name }}!</div>
+                {% if user.first_name %}
+                    <div class="welcome-user">Hi, {{ user.first_name }}!</div>
                     <div class="dropdown">
                         <img src="static/images/show-more.png" class="show-more-icon" id="dropdown-icon">
                         <div class="dropdown-content" id="dropdown-content">

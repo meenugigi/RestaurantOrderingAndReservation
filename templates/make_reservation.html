@@ -33,17 +33,17 @@
             <div class="form-format">
                 <div class="form-group">
                     <label for="full_name">Full Name:</label>
-                    <input type="text" id="full_name" name="full_name" value="{{ first_name }} {{  last_name }}" required>
+                    <input type="text" id="full_name" name="full_name" value="{{ user.first_name }} {{  user.last_name }}" required>
                 </div>
                 <div class="form-group">
                     <label for="email">Email:</label>
-                    <input type="email" id="email" name="email" value="{{ email }}" required>
+                    <input type="email" id="email" name="email" value="{{ user.email }}" required>
                 </div>
             </div>
 
             <div class="form-group">
                 <label for="contact">Contact:</label>
-                <input type="tel" id="contact" name="contact" value="{{ contact }}" required>
+                <input type="tel" id="contact" name="contact" value="{{ user.contact }}" required>
             </div>
         </div>
 

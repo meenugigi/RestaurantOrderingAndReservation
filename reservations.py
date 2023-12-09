@@ -13,10 +13,6 @@ async def make_reservation(request: Request, restaurant_id: int = Form(...)):
         If yes, then displays that slot on dropdown and is available to reserve.
    """
     user = request.session.get("user")
-    first_name = user.get("first_name")
-    last_name = user.get("last_name")
-    email = user.get("email")
-    contact =  user.get("contact")
     RestaurantID(
         restaurant_id=restaurant_id
     )
@@ -44,9 +40,9 @@ async def make_reservation(request: Request, restaurant_id: int = Form(...)):
         available_to_reserve_slot_list.append(data)
 
     return templates.TemplateResponse("make_reservation.html", {"request": request,
-                                                 "service_name": "FlavorFusion", "first_name": first_name, "email": email,
-                                                 "last_name": last_name, "contact": contact, "min_date": min_date, "max_date": max_date,
-                                                 "restaurant_id": restaurant_id, "reservation_slots": available_reservation_slots,
+                                                 "service_name": "FlavorFusion", "user": user, "min_date": min_date,
+                                                 "max_date": max_date, "restaurant_id": restaurant_id,
+                                                 "reservation_slots": available_reservation_slots,
                                                  "available_to_reserve_slot_list": available_to_reserve_slot_list})
 
 
@@ -81,8 +77,7 @@ async def save_reservation_data(request: Request):
         Uses Twilio API to send text messages on customer contact to confirm reservation.
    """
     form_data = await request.json()
-    user = request.session.get("user")
-    reserved_by = user.get("email")
+    reserved_by = request.session.get("user").get("email")
     full_name = form_data.get("full_name")
     email = form_data.get("email")
     contact = form_data.get("contact")
@@ -122,11 +117,9 @@ async def show_reservations(request: Request):
         not store restaurant name to maintain database independency.
    """
     user = request.session.get("user")
-    first_name = user.get("first_name")
-    email = user.get("email")
     current_date = datetime.now().strftime('%Y-%m-%d')
 
-    get_bookings = list(collection_reservations.find({"reserved_by": email, "reservation_date": {"$gte": current_date}}))
+    get_bookings = list(collection_reservations.find({"reserved_by": user.get("email"), "reservation_date": {"$gte": current_date}}))
     restaurant_ids = []
     restaurant_names = []
 
@@ -144,7 +137,7 @@ async def show_reservations(request: Request):
         booking['restaurant_name'] = name
 
 
-    return templates.TemplateResponse("show_reservations.html", {"request": request, "first_name": first_name,
+    return templates.TemplateResponse("show_reservations.html", {"request": request, "user": user,
                                              "service_name": "FlavorFusion", "get_bookings": get_bookings})
 
 
@@ -157,7 +150,6 @@ async def cancel_reservation(request: Request, reservation_id: str = Form(...)):
     ReservationID(
         reservation_id=reservation_id
     )
-
     collection_reservations.delete_one({'_id': ObjectId(reservation_id)})
 
 
